@@ -1,0 +1,87 @@
+<!DOCTYPE html><html lang="[&quot;zh-CN&quot;,&quot;en&quot;,&quot;default&quot;]"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>使用k8s容器钩子确保服务安全退出 | 天青色等烟雨  而我在等你</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.1"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/7.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+ga('create','UA-87247047-1','auto');ga('send','pageview');</script></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">使用k8s容器钩子确保服务安全退出</h1><a id="logo" href="/.">天青色等烟雨  而我在等你</a><p class="description">文不在多、有换则新、人不在挤、有来就行</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">使用k8s容器钩子确保服务安全退出</h1><div class="post-meta">Apr 15, 2018<span> | </span><span class="category"><a href="/categories/Kubernetes/">Kubernetes</a></span></div><div class="post-content"><p>Kubernetes为容器提供了生命周期钩子。<br>
+钩子能使容器感知其生命周期内的事件，并且当相应的生命周期钩子被调用时运行指定的代码。</p>
+<a id="more"></a>
+<p><ul class="markdownIt-TOC">
+<li><a href="#%E5%AE%B9%E5%99%A8%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%9A%84%E9%92%A9%E5%AD%90">容器生命周期的钩子</a>
+<ul>
+<li><a href="#poststart">PostStart</a></li>
+<li><a href="#prestop">PreStop</a></li>
+</ul>
+</li>
+<li><a href="#%E9%92%A9%E5%AD%90%E5%A4%84%E7%90%86%E7%A8%8B%E5%BA%8F%E7%9A%84%E5%AE%9E%E7%8E%B0">钩子处理程序的实现</a></li>
+<li><a href="#%E5%AE%9A%E4%B9%89%E9%A2%84%E5%90%AF%E5%8A%A8%E5%92%8C%E9%A2%84%E7%BB%93%E6%9D%9F%E4%BA%8B%E4%BB%B6%E6%93%8D%E4%BD%9C">定义预启动和预结束事件操作</a></li>
+<li><a href="#%E4%BD%BF%E7%94%A8-prestop-hook-%E4%BF%9D%E8%AF%81%E6%9C%8D%E5%8A%A1%E5%AE%89%E5%85%A8%E9%80%80%E5%87%BA">使用 prestop hook 保证服务安全退出</a></li>
+<li><a href="#%E5%8F%82%E8%80%83%E8%BF%9E%E6%8E%A5">参考连接</a></li>
+</ul>
+</p>
+<h2><span id="容器生命周期的钩子"> 容器生命周期的钩子</span></h2>
+<p>Kubernetes为容器提供了生命周期钩子。<br>
+钩子能使容器感知其生命周期内的事件，并且当相应的生命周期钩子被调用时运行指定的代码。</p>
+<p>容器钩子分为两类触发点：容器创建后PostStart和容器终止前PreStop。</p>
+<h3><span id="poststart"> PostStart</span></h3>
+<p>这个钩子在容器创建后立即执行。<br>
+但是，并不能保证钩子将在容器ENTRYPOINT之前运行。<br>
+没有参数传递给处理程序。</p>
+<p>容器ENTRYPOINT和钩子执行是异步操作。<br>
+如果钩子花费太长时间以至于容器不能运行或者挂起， 容器将不能达到running状态</p>
+<h3><span id="prestop"> PreStop</span></h3>
+<p>这个钩子在容器终止之前立即被调用。<br>
+它是阻塞的，意味着它是同步的， 所以它必须在删除容器的调用发出之前完成</p>
+<p>如果钩子在执行期间挂起， Pod阶段将停留在running状态并且永不会达到failed状态。</p>
+<p><strong>如果PostStart或者PreStop钩子失败， 容器将会被kill。<br>
+用户应该使他们的钩子处理程序尽可能的轻量。</strong></p>
+<h2><span id="钩子处理程序的实现"> 钩子处理程序的实现</span></h2>
+<p>容器可以通过实现和注册该钩子的处理程序来访问钩子。<br>
+可以为容器实现两种类型的钩子处理程序：</p>
+<ul>
+<li>Exec - 在容器的cgroups和命名空间内执行一个特定的命令，<a href="http://xn--pre-stop-jo1ot97l.sh" target="_blank" rel="noopener">比如pre-stop.sh</a>。<br>
+该命令消耗的资源被计入容器。</li>
+<li>HTTP - 对容器上的特定的端点执行HTTP请求。</li>
+</ul>
+<p>在Pod的事件中没有钩子处理程序的日志。 如果一个处理程序因为某些原因运行失败，它广播一个事件。<br>
+对于PostStart, 这<strong>是FailedPostStartHook</strong>事件， 对于PreStop, 这是<strong>FailedPreStopHook</strong>事件。<br>
+你可以通过运行kubectl describe pod &lt;pod_name&gt;来查看这些事件。</p>
+<h2><span id="定义预启动和预结束事件操作"> 定义预启动和预结束事件操作</span></h2>
+<p>下面将会创建含有一个容器的Pod，我们将会给这个容器设置预启动和预结束操作。<br>
+<a href="https://raw.githubusercontent.com/kubernetes/website/master/docs/tasks/configure-pod-container/lifecycle-events.yaml" target="_blank" rel="noopener">https://raw.githubusercontent.com/kubernetes/website/master/docs/tasks/configure-pod-container/lifecycle-events.yaml</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: Pod</span><br><span class="line">metadata:</span><br><span class="line">  name: lifecycle-demo</span><br><span class="line">spec:</span><br><span class="line">  containers:</span><br><span class="line">  - name: lifecycle-demo-container</span><br><span class="line">    image: nginx</span><br><span class="line">    lifecycle:</span><br><span class="line">      postStart:</span><br><span class="line">        exec:</span><br><span class="line">          command: [&quot;/bin/sh&quot;, &quot;-c&quot;, &quot;echo Hello from the postStart handler &gt; /usr/share/message&quot;]</span><br><span class="line">      preStop:</span><br><span class="line">        exec:</span><br><span class="line">          command: [&quot;/usr/sbin/nginx&quot;,&quot;-s&quot;,&quot;quit&quot;]</span><br></pre></td></tr></table></figure>
+<h2><span id="使用-prestop-hook-保证服务安全退出"> 使用 prestop hook 保证服务安全退出</span></h2>
+<p>在实际生产环境中使用spring框架，由于服务更新过程中，服务容器被直接终止，部分请求仍然被分发到终止的容器，导致出现500错误，这部分错误的请求数据占比较少，也可以忽略。<br>
+考虑添加优雅的终止方式，将错误请求降到最低，直至没有错误出现。</p>
+<p>这里介绍 spring cloud 的服务发现组件：<br>
+Eureka 是一个基于 REST 的服务，作为服务注册中心，用于定位服务来进行中间层服务器的负载均衡和故障转移。<br>
+各服务启动时,会向Eureka Server注册自己的信息(IP,端口,服务信息等),Eureka Server会存储这些信息.<br>
+微服务启动后,会周期性(默认30秒)的向Eureka Server发送心跳以续约自己的”租期”，并可以从eureka中获取其他微服务的地址信息，执行相关的逻辑。<br>
+<img src="http://www.ityouknow.com/assets/images/2017/springcloud/eureka-architecture-overview.png" alt="image"></p>
+<p>考虑现在eureka server 修改注册实例的状态，暂停服务( InstanceStatus.OUT_OF_SERVICE )，保留一段时间后，再删除服务。</p>
+<p>禁用某个服务：<br>
+curl -X PUT “<a href="http://admin:admin@192.168.101.100:8761/eureka/apps/%7BappName%7D/%7BinstanceId%7D/status?value=OUT_OF_SERVICE" target="_blank" rel="noopener">http://admin:admin@192.168.101.100:8761/eureka/apps/{appName}/{instanceId}/status?value=OUT_OF_SERVICE</a>”</p>
+<p>说明：admin:admin是eureka的登录名和密码，如果没有，直接去掉前面这段；<br>
+instanceId是上面打开的链接显示的服务列表中的<instanceid>标签内容,如：myapp:192.168.1.100:8080</instanceid></p>
+<p>在k8s 中的具体操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: extensions/v1beta1</span><br><span class="line">kind: Deployment</span><br><span class="line">metadata:</span><br><span class="line">  name: NAME-service-deployment</span><br><span class="line">spec:</span><br><span class="line">  replicas: 3</span><br><span class="line">  selector:</span><br><span class="line">    matchLabels:</span><br><span class="line">      app: NAME-service</span><br><span class="line">  template:</span><br><span class="line">    metadata:</span><br><span class="line">      labels:</span><br><span class="line">        app: NAME-service</span><br><span class="line">    spec:</span><br><span class="line">      containers:</span><br><span class="line">      - name: NAME-service</span><br><span class="line">        lifecycle:</span><br><span class="line">          preStop:</span><br><span class="line">            exec:</span><br><span class="line">              command:</span><br><span class="line">                - &quot;/bin/sh&quot;</span><br><span class="line">                - &quot;-c&quot;</span><br><span class="line">                - &quot; \</span><br><span class="line">                  APPLICATION=NAME-service; \</span><br><span class="line">                  APPLICATION_PORT=8016; \</span><br><span class="line">                  curl -s -X PUT http://eureka01-server.domain.com/eureka/apps/$&#123;APPLICATION&#125;/$(hostname):$&#123;APPLICATION&#125;:$&#123;APPLICATION_PORT&#125;/status?value=OUT_OF_SERVICE; \</span><br><span class="line">                  sleep 30; \</span><br><span class="line">                  &quot;</span><br></pre></td></tr></table></figure>
+<p>删除了无用的信息，重点关注 lifecycle<br>
+首先定义了服务名和端口的环境变量，把这部分单独作为变量，便于不同的服务进行修改。<br>
+使用 curl PUT 到eureka 配置状态为 OUT_OF_SERVICE。<br>
+配置一个sleep时间，作为服务停止缓冲时间。</p>
+<h2><span id="参考连接"> 参考连接</span></h2>
+<ol>
+<li><a href="https://k8smeetup.github.io/docs/concepts/containers/container-lifecycle-hooks/" target="_blank" rel="noopener">容器生命周期的钩子</a></li>
+<li><a href="https://k8smeetup.github.io/docs/concepts/workloads/pods/pod/#pods-%E7%9A%84%E7%BB%88%E6%AD%A2" target="_blank" rel="noopener">Pods 的终止</a></li>
+<li><a href="https://k8smeetup.github.io/docs/tasks/configure-pod-container/attach-handler-lifecycle-event/" target="_blank" rel="noopener">给容器生命周期设置操作事件</a></li>
+<li><a href="https://blog.csdn.net/wangdw1984/article/details/78459782" target="_blank" rel="noopener">eureka服务禁用</a></li>
+</ol>
+</div><script type="text/javascript" src="/js/share.js?v=0.0.1" async></script><a class="article-share-link" data-url="yunke.science/2018/04/15/k8s-hook/" data-id="cjg0awuoy000yh00vnnb33lua" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABy0lEQVR42u3aQY7CMBAEwPz/0+wDyHp7ZmKDVuUTEkkoc2jFbV9XPF5v4/3b/K7fnvPYwMXFHXNfyzHhvn+7/rw24OLinufmP7O+tzfJ/Pm4uLjfyV2HXfXVBxcX9z9xq0uj9eIHFxf3O7nJ4qdagiRj41oNFxd3wM1byn2ft/S7uLi4Le48dJJXll543dyFi4t7hJsHSl6CzEvS9e/i4uKe4c6PUBRKjeKm7FW9CBcXd8ztVZ/lf6JVvtwEGS4u7kFutR5Nwqu3yClvouDi4m7g5suSyRGN9SSr0YaLi3uG2ytGe7VItRCJ3pVwcXE3cye1RXJgohd8N/0uLi7uNm5+3CqvOXrbKlF1gouLe4SbB1C1LslfcapHPXBxcc9zqweq8holqUiiGMXFxf0od36QIl/kFCaGi4t7kFtehLRA1QjDxcX9LDffJultqeZHuJonvHBxcR/ivoqjN+F8U7YZYbi4uI9yexkyuSavX3vPxMXFfYqbhFceTMlmSRJYhXNkuLi427iToJkcuUg8f7Q4uLi4X8btXZ9MckuQ4eLibuNOio9e5TEKMlxc3AH3qdKzWn2WYxQXF/cIt1duPrVB0vubcHFxt3F/AFv3KfileWFgAAAAAElFTkSuQmCC">分享</a><div class="tags"><a href="/tags/Kubernetes/">Kubernetes</a><a href="/tags/docker/">docker</a></div><div class="post-nav"><a class="next" href="/2018/04/14/docker-notions/">Docker 基本概念</a></div><div id="container"></div><link rel="stylesheet" href="/css/default.css?v=0.0.1"><script src="/js/gitment.browser.js?v=0.0.1"></script><script>var gitment = new Gitment({
+  owner: 'young-0',
+  repo: 'young-0.github.io',
+  oauth: {
+    client_id: '967eeda5599f16063a0a',
+    client_secret: '0c5aaeec2649210043608d7a09c7d19f0795f3f9',
+  },
+})
+gitment.render('container')
+</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="yunke.science"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Kubernetes/">Kubernetes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/elk/">elk</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/nginx/">nginx</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/python/">python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/其他/">其他</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/love/" style="font-size: 15px;">love</a> <a href="/tags/Kubernetes/" style="font-size: 15px;">Kubernetes</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/traefik/" style="font-size: 15px;">traefik</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/openresty/" style="font-size: 15px;">openresty</a> <a href="/tags/LuaRocks/" style="font-size: 15px;">LuaRocks</a> <a href="/tags/elk/" style="font-size: 15px;">elk</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/monitor/" style="font-size: 15px;">monitor</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/crond/" style="font-size: 15px;">crond</a> <a href="/tags/alpine/" style="font-size: 15px;">alpine</a> <a href="/tags/kubernetes/" style="font-size: 15px;">kubernetes</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/04/15/k8s-hook/">使用k8s容器钩子确保服务安全退出</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/14/docker-notions/">Docker 基本概念</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/09/Tini-command/">Tini - 一个小而有效的容器初始化命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/09/gosu-or-sudo/">gosu or sudo</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/30/kubelet-Synopsis/">kubelet 功能介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/30/Calico4k8s/">Quickstart for Calico on Kubernetes</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/28/K8s19-cluster/">Kubernetes HA 1.9 高可用集群kubeadm部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/28/Ingress-traefik/">Kubernetes Ingress Controller traefik</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/22/elk5-strings/">elk5+, 取消String类型，使用keyword和text代替</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/21/Elastic-watch/">Elastic x-pack plugin watches Features</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="http://www.21andy.com/manual/advanced-bash-scripting-guide/" title="高级Bash脚本编程指南" target="_blank">高级Bash脚本编程指南</a><ul></ul><a href="http://www.colasoft.com.cn/training/document.php" title="网络分析技术学习资料" target="_blank">网络分析技术学习资料</a><ul></ul><a href="https://k8smeetup.github.io/docs/home/" title="Kubernetes 文档" target="_blank">Kubernetes 文档</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">天青色等烟雨  而我在等你.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.1" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.1" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.css"><script type="text/javascript" color="0,0,0" opacity="0.5" zIndex="-2" count="50" src="//cdn.bootcss.com/canvas-nest.js/1.0.1/canvas-nest.min.js"></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.1"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.1"></script></div></body></html>
