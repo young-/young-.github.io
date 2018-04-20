@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="yunke.science/"/>
-  <updated>2018-04-19T04:06:58.331Z</updated>
+  <updated>2018-04-20T02:29:02.666Z</updated>
   <id>yunke.science/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>ip 子网划分的两个例子</title>
+    <link href="yunke.science/2018/04/20/ip-netmaster/"/>
+    <id>yunke.science/2018/04/20/ip-netmaster/</id>
+    <published>2018-04-20T02:26:24.000Z</published>
+    <updated>2018-04-20T02:29:02.666Z</updated>
+    
+    <content type="html"><![CDATA[<p>IP将IP地址分隔为网络和主机地址（&lt;网络&gt; &lt;主机&gt;）。 子网划分进一步将IP地址的主机部分划分为子网称为子网掩码，因为它用于通过对网络掩码执行按位与操作来识别IP地址的网络地址。</p><a id="more"></a><p><ul class="markdownIt-TOC"><li><a href="#%E4%BE%8B1%E6%9C%AC%E4%BE%8B%E9%80%9A%E8%BF%87%E5%AD%90%E7%BD%91%E6%95%B0%E6%9D%A5%E5%88%92%E5%88%86%E5%AD%90%E7%BD%91%E6%9C%AA%E8%80%83%E8%99%91%E4%B8%BB%E6%9C%BA%E6%95%B0">例1：本例通过子网数来划分子网，未考虑主机数。</a></li><li><a href="#%E4%BE%8B2%E6%9C%AC%E4%BE%8B%E9%80%9A%E8%BF%87%E8%AE%A1%E7%AE%97%E4%B8%BB%E6%9C%BA%E6%95%B0%E6%9D%A5%E5%88%92%E5%88%86%E5%AD%90%E7%BD%91">例2：本例通过计算主机数来划分子网。</a><ul><li><a href="#a-%E5%85%88%E6%A0%B9%E6%8D%AE%E5%A4%A7%E7%9A%84%E4%B8%BB%E6%9C%BA%E6%95%B0%E9%9C%80%E6%B1%82%E5%88%92%E5%88%86%E5%AD%90%E7%BD%91">A. 先根据大的主机数需求，划分子网</a></li><li><a href="#b-%E5%86%8D%E5%88%92%E5%88%862%E6%A5%BC%E4%BD%BF%E7%94%A8%E7%9A%84%E7%BD%91%E6%AE%B5">B. 再划分2楼使用的网段</a></li><li><a href="#c-%E6%9C%80%E5%90%8E%E5%88%92%E5%88%86%E8%B7%AF%E7%94%B1%E5%99%A8%E4%BA%92%E8%81%94%E4%BD%BF%E7%94%A8%E7%9A%84%E7%BD%91%E6%AE%B5">C. 最后划分路由器互联使用的网段</a></li><li><a href="#d-%E6%95%B4%E7%90%86%E6%9C%AC%E4%BE%8B%E7%9A%84%E8%A7%84%E5%88%92%E5%9C%B0%E5%9D%80">D. 整理本例的规划地址</a></li></ul></li><li><a href="#%E5%BF%AB%E9%80%9F%E5%88%92%E5%88%86%E5%AD%90%E7%BD%91%E7%A1%AE%E5%AE%9Aip">快速划分子网确定IP</a></li><li><a href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5">参考链接：</a></li></ul></p><h2><span id="例1本例通过子网数来划分子网未考虑主机数"> 例1：本例通过子网数来划分子网，未考虑主机数。</span></h2><p>一家集团公司有12家子公司，每家子公司又有4个部门。上级给出一个172.16.0.0/16的网段，让给每家子公司以及子公司的部门分配网段。</p><p>思路：既然有12家子公司，那么就要划分12个子网段，但是每家子公司又有4个部门，因此又要在每家子公司所属的网段中划分4个子网分配给各部门。</p><p>步骤：</p><p>A. 先划分各子公司的所属网段。</p><p>有12家子公司，那么就有2的n次方≥12，n的最小值=4。因此，网络位需要向主机位借4位。那么就可以从172.16.0.0/16这个大网段中划出2的4次方=16个子网。</p><p>详细过程：</p><p>先将172.16.0.0/16用二进制表示</p><p>10101100.00010000.00000000.00000000/16</p><p>借4位后（可划分出16个子网）：</p><ol><li><mark>10101100.00010000.0000</mark>0000.00000000/20【172.16.0.0/20】</li><li><mark>10101100.00010000.0001</mark>0000.00000000/20【172.16.16.0/20】</li><li><mark>10101100.00010000.0010</mark>0000.00000000/20【172.16.32.0/20】</li><li><mark>10101100.00010000.0011</mark>0000.00000000/20【172.16.48.0/20】</li><li><mark>10101100.00010000.0100</mark>0000.00000000/20【172.16.64.0/20】</li><li><mark>10101100.00010000.0101</mark>0000.00000000/20【172.16.80.0/20】</li><li><mark>10101100.00010000.0110</mark>0000.00000000/20【172.16.96.0/20】</li><li><mark>10101100.00010000.0111</mark>0000.00000000/20【172.16.112.0/20】</li><li><mark>10101100.00010000.1000</mark>0000.00000000/20【172.16.128.0/20】</li><li><mark>10101100.00010000.1001</mark>0000.00000000/20【172.16.144.0/20】</li><li><mark>10101100.00010000.1010</mark>0000.00000000/20【172.16.160.0/20】</li><li><mark>10101100.00010000.1011</mark>0000.00000000/20【172.16.176.0/20】</li><li><mark>10101100.00010000.1100</mark>0000.00000000/20【172.16.192.0/20】</li><li><mark>10101100.00010000.1101</mark>0000.00000000/20【172.16.208.0/20】</li><li><mark>10101100.00010000.1110</mark>0000.00000000/20【172.16.224.0/20】</li><li><mark>10101100.00010000.1111</mark>0000.00000000/20【172.16.240.0/20】</li></ol><p>我们从这16个子网中选择12个即可，就将前12个分给下面的各子公司。每个子公司最多容纳主机数目为2的12次方-2=4094。</p><p>B. 再划分子公司各部门的所属网段</p><p>以甲公司获得172.16.0.0/20为例，其他子公司的部门网段划分同甲公司。</p><p>有4个部门，那么就有2的n次方≥4，n的最小值=2。因此，网络位需要向主机位借2位。那么就可以从172.16.0.0/20这个网段中再划出2的2次方=4个子网，正符合要求。</p><p>详细过程：<br>先将172.16.0.0/20用二进制表示<br><mark>10101100.00010000.0000</mark>0000.00000000/20<br>借2位后（可划分出4个子网）：</p><ol><li>10101100.00010000.0000<mark>00</mark>00.00000000/22【172.16.0.0/22】</li><li>10101100.00010000.0000<mark>01</mark>00.00000000/22【172.16.4.0/22】</li><li>10101100.00010000.0000<mark>10</mark>00.00000000/22【172.16.8.0/22】</li><li>10101100.00010000.0000<mark>11</mark>00.00000000/22【172.16.12.0/22】</li></ol><p>将这4个网段分给甲公司的4个部门即可。每个部门最多容纳主机数目为2的10次方-2=1024。</p><h2><span id="例2本例通过计算主机数来划分子网"> 例2：本例通过计算主机数来划分子网。</span></h2><p>某集团公司给下属子公司甲分配了一段IP地址192.168.5.0/24，现在甲公司有两层办公楼（1楼和2楼），统一从1楼的路由器上公网。1楼有100台电脑联网，2楼有53台电脑联网。如果你是该公司的网管，你该怎么去规划这个IP？</p><p>根据需求，画出下面这个简单的拓扑。将192.168.5.0/24划成3个网段，1楼一个网段，至少拥有101个可用IP地址；2楼一个网段，至少拥有54个可用IP地址；1楼和2楼的路由器互联用一个网段，需要2个IP地址。</p><p>思路:我们在划分子网时优先考虑最大主机数来划分。在本例中，我们就先使用最大主机数来划分子网。101个可用IP地址，那就要保证至少7位的主机位可用（2的m次方-2≥101，m的最小值=7）。如果保留7位主机位，那就只能划出两个网段，剩下的一个网段就划不出来了。但是我们剩下的一个网段只需要2个IP地址并且2楼的网段只需要54个可用IP，因此，我们可以从第一次划出的两个网段中选择一个网段来继续划分2楼的网段和路由器互联使用的网段。</p><p>步骤：</p><h3><span id="a-先根据大的主机数需求划分子网"> A. 先根据大的主机数需求，划分子网</span></h3><p>因为要保证1楼网段至少有101个可用IP地址，所以，主机位要保留至少7位。<br>先将192.168.5.0/24用二进制表示：<br><mark>11000000.10101000.00000101</mark>.00000000/24<br>主机位保留7位，即在现有基础上网络位向主机位借1位（可划分出2个子网）：</p><ol><li><mark>11000000.10101000.00000101.0</mark>0000000/25【192.168.5.0/25】</li><li><mark>11000000.10101000.00000101.1</mark>0000000/25【192.168.5.128/25】</li></ol><p>1楼网段从这两个子网段中选择一个即可，我们选择192.168.5.0/25。<br>2楼网段和路由器互联使用的网段从192.168.5.128/25中再次划分得到。</p><h3><span id="b-再划分2楼使用的网段"> B. 再划分2楼使用的网段</span></h3><p>2楼使用的网段从192.168.5.128/25这个子网段中再次划分子网获得。因为2楼至少要有54个可用IP地址，所以，主机位至少要保留6位（2的m次方-2≥54，m的最小值=6）。</p><p>先将192.168.5.128/25用二进制表示：<br>11000000.10101000.00000101.10000000/25<br>主机位保留6位，即在现有基础上网络位向主机位借1位（可划分出2个子网）：</p><ol><li>11000000.10101000.00000101.1<mark>0</mark>000000/26【192.168.5.128/26】</li><li>11000000.10101000.00000101.1<mark>1</mark>000000/26【192.168.5.192/26】</li></ol><p>2楼网段从这两个子网段中选择一个即可，我们选择192.168.5.128/26。<br>路由器互联使用的网段从192.168.5.192/26中再次划分得到。</p><h3><span id="c-最后划分路由器互联使用的网段"> C. 最后划分路由器互联使用的网段</span></h3><p>路由器互联使用的网段从192.168.5.192/26这个子网段中再次划分子网获得。因为只需要2个可用IP地址，所以，主机位只要保留2位即可（2的m次方-2≥2，m的最小值=2）。</p><p>先将192.168.5.192/26用二进制表示：<br>11000000.10101000.00000101.11000000/26<br>主机位保留2位，即在现有基础上网络位向主机位借4位（可划分出16个子网）：</p><ol><li>11000000.10101000.00000101.11<mark>0000</mark>00/30【192.168.5.192/30】</li><li>11000000.10101000.00000101.11<mark>0001</mark>00/30【192.168.5.196/30】</li><li>11000000.10101000.00000101.11<mark>0010</mark>00/30【192.168.5.200/30】<br>…………………………………</li><li>11000000.10101000.00000101.11<mark>1101</mark>00/30【192.168.5.244/30】</li><li>11000000.10101000.00000101.11<mark>1110</mark>00/30【192.168.5.248/30】</li><li>11000000.10101000.00000101.11<mark>1111</mark>00/30【192.168.5.252/30】<br>路由器互联网段我们从这16个子网中选择一个即可，我们就选择192.168.5.252/30。</li></ol><h3><span id="d-整理本例的规划地址"> D. 整理本例的规划地址</span></h3><p>1楼：<br>网络地址：【192.168.5.0/25】<br>主机IP地址：【192.168.5.1/25—192.168.5.126/25】<br>广播地址：【192.168.5.127/25】<br>2楼：<br>网络地址：【192.168.5.128/26】<br>主机IP地址：【192.168.5.129/26—192.168.5.190/26】<br>广播地址：【192.168.5.191/26】<br>路由器互联：<br>网络地址：【192.168.5.252/30】<br>两个IP地址：【192.168.5.253/30、192.168.5.254/30】<br>广播地址：【192.168.5.255/30】</p><h2><span id="快速划分子网确定ip"> 快速划分子网确定IP</span></h2><p>我们以例2为例：<br>题目需要我们将192.168.5.0/24这个网络地址划分成能容纳101/54/2个主机的子网。因此我们要先确定主机位，然后根据主机位决定网络位，最后确定详细的IP地址。</p><ol><li>确定主机位<br>将所需要的主机数自大而小的排列出来：101/54/2，然后根据网络拥有的IP数目确定每个子网的主机位：如果2的n次方-2≥该网段的IP数目，那么主机位就等于n。于是，得到：7/6/2。</li><li>根据主机位决定网络位<br>用32减去主机位剩下的数值就是网络位，得到：25/26/30。</li><li>确定详细的IP地址<br>在二进制中用网络位数值掩盖IP前面相应的位数，然后后面的为IP位。选取每个子网的第一个IP为网络地址，最后一个为广播地址，之间的为有效IP。得到：</li></ol><table><thead><tr><th>【网络地址】</th><th>【有效IP】</th><th>【广播地址】</th></tr></thead><tbody><tr><td>【192.168.5.0/25】</td><td>【192.168.5.1/25-192.168.5.126/25】</td><td>【192.168.5.127/25】</td></tr><tr><td>【192.168.5.128/26】</td><td>【192.168.5.129/26-192.168.5.190/26】</td><td>【192.168.5.191/26】</td></tr><tr><td>【192.168.5.192/30】</td><td>【192.168.5.193/30-192.168.5.194/30】</td><td>【192.168.5.195/30】</td></tr></tbody></table><p>用于分级网络的常用网络掩码的例子是8位（A类），16位（B类）和24位（C类），而无分类网络如下：</p><table><thead><tr><th>Class</th><th>Address</th><th># of Hosts</th><th>Netmask (Binary)</th><th>Netmask (Decimal)</th></tr></thead><tbody><tr><td>CIDR</td><td>/4</td><td>240,435,456</td><td>11110000 00000000 00000000 00000000</td><td>240.0.0.0</td></tr><tr><td>CIDR</td><td>/5</td><td>134,217,728</td><td>11111000 00000000 00000000 00000000</td><td>248.0.0.0</td></tr><tr><td>CIDR</td><td>/6</td><td>67,108,864</td><td>11111100 00000000 00000000 00000000</td><td>252.0.0.0</td></tr><tr><td>CIDR</td><td>/7</td><td>33,554,432</td><td>11111110 00000000 00000000 00000000</td><td>254.0.0.0</td></tr><tr><td>A</td><td>/8</td><td>16,777,216</td><td>11111111 00000000 00000000 00000000</td><td>255.0.0.0</td></tr><tr><td>CIDR</td><td>/9</td><td>8,388,608</td><td>11111111 10000000 00000000 00000000</td><td>255.128.0.0</td></tr><tr><td>CIDR</td><td>/10</td><td>4,194,304</td><td>11111111 11000000 00000000 00000000</td><td>255.192.0.0</td></tr><tr><td>CIDR</td><td>/11</td><td>2,097,152</td><td>11111111 11100000 00000000 00000000</td><td>255.224.0.0</td></tr><tr><td>CIDR</td><td>/12</td><td>1,048,576</td><td>11111111 11110000 00000000 00000000</td><td>255.240.0.0</td></tr><tr><td>CIDR</td><td>/13</td><td>524,288</td><td>11111111 11111000 00000000 00000000</td><td>255.248.0.0</td></tr><tr><td>CIDR</td><td>/14</td><td>262,144</td><td>11111111 11111100 00000000 00000000</td><td>255.252.0.0</td></tr><tr><td>CIDR</td><td>/15</td><td>131,072</td><td>11111111 11111110 00000000 00000000</td><td>255.254.0.0</td></tr><tr><td>B</td><td>/16</td><td>65,534</td><td>11111111 11111111 00000000 00000000</td><td>255.255.0.0</td></tr><tr><td>CIDR</td><td>/17</td><td>32,768</td><td>11111111 11111111 10000000 00000000</td><td>255.255.128.0</td></tr><tr><td>CIDR</td><td>/18</td><td>16,384</td><td>11111111 11111111 11000000 00000000</td><td>255.255.192.0</td></tr><tr><td>CIDR</td><td>/19</td><td>8,192</td><td>11111111 11111111 11100000 00000000</td><td>255.255.224.0</td></tr><tr><td>CIDR</td><td>/20</td><td>4,096</td><td>11111111 11111111 11110000 00000000</td><td>255.255.240.0</td></tr><tr><td>CIDR</td><td>/21</td><td>2,048</td><td>11111111 11111111 11111000 00000000</td><td>255.255.248.0</td></tr><tr><td>CIDR</td><td>/22</td><td>1,024</td><td>11111111 11111111 11111100 00000000</td><td>255.255.252.0</td></tr><tr><td>CIDR</td><td>/23</td><td>512</td><td>11111111 11111111 11111110 00000000</td><td>255.255.254.0</td></tr><tr><td>C</td><td>/24</td><td>256</td><td>11111111 11111111 11111111 00000000</td><td>255.255.255.0</td></tr><tr><td>CIDR</td><td>/25</td><td>128</td><td>11111111 11111111 11111111 10000000</td><td>255.255.255.128</td></tr><tr><td>CIDR</td><td>/26</td><td>64</td><td>11111111 11111111 11111111 11000000</td><td>255.255.255.192</td></tr><tr><td>CIDR</td><td>/27</td><td>32</td><td>11111111 11111111 11111111 11100000</td><td>255.255.255.224</td></tr><tr><td>CIDR</td><td>/28</td><td>16</td><td>11111111 11111111 11111111 11110000</td><td>255.255.255.240</td></tr><tr><td>CIDR</td><td>/29</td><td>8</td><td>11111111 11111111 11111111 11111000</td><td>255.255.255.248</td></tr><tr><td>CIDR</td><td>/30</td><td>4</td><td>11111111 11111111 11111111 11111100</td><td>255.255.255.252</td></tr></tbody></table><h2><span id="参考链接"> 参考链接：</span></h2><p><a href="http://blog.51cto.com/yuanbin/112029" target="_blank" rel="noopener">子网划分的两个例子</a><br><a href="https://www.iplocation.net/subnet-mask" target="_blank" rel="noopener">What is a Subnet Mask?</a></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;IP将IP地址分隔为网络和主机地址（&amp;lt;网络&amp;gt; &amp;lt;主机&amp;gt;）。 子网划分进一步将IP地址的主机部分划分为子网称为子网掩码，因为它用于通过对网络掩码执行按位与操作来识别IP地址的网络地址。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="网络" scheme="yunke.science/categories/%E7%BD%91%E7%BB%9C/"/>
+    
+    
+      <category term="网络" scheme="yunke.science/tags/%E7%BD%91%E7%BB%9C/"/>
+    
+  </entry>
   
   <entry>
     <title>凡是让人幸福的东西，往往又会成为他不幸的源泉。</title>
@@ -103,9 +125,9 @@
       <category term="Kubernetes" scheme="yunke.science/categories/Kubernetes/"/>
     
     
-      <category term="Kubernetes" scheme="yunke.science/tags/Kubernetes/"/>
-    
       <category term="docker" scheme="yunke.science/tags/docker/"/>
+    
+      <category term="Kubernetes" scheme="yunke.science/tags/Kubernetes/"/>
     
   </entry>
   
@@ -259,9 +281,9 @@ Kubeadm执行必要的操作以启动并运行最小的可用群集。 按照设
       <category term="Kubernetes" scheme="yunke.science/categories/Kubernetes/"/>
     
     
-      <category term="Kubernetes" scheme="yunke.science/tags/Kubernetes/"/>
-    
       <category term="docker" scheme="yunke.science/tags/docker/"/>
+    
+      <category term="Kubernetes" scheme="yunke.science/tags/Kubernetes/"/>
     
   </entry>
   
@@ -290,9 +312,9 @@ Kubeadm执行必要的操作以启动并运行最小的可用群集。 按照设
       <category term="Kubernetes" scheme="yunke.science/categories/Kubernetes/"/>
     
     
-      <category term="Kubernetes" scheme="yunke.science/tags/Kubernetes/"/>
-    
       <category term="docker" scheme="yunke.science/tags/docker/"/>
+    
+      <category term="Kubernetes" scheme="yunke.science/tags/Kubernetes/"/>
     
       <category term="traefik" scheme="yunke.science/tags/traefik/"/>
     
@@ -519,29 +541,6 @@ LuaRocks是免费软件，使用与Lua相同的许可证。&lt;/p&gt;
     </summary>
     
       <category term="其他" scheme="yunke.science/categories/%E5%85%B6%E4%BB%96/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>Alpine Linux 教程和 Howtos</title>
-    <link href="yunke.science/2017/12/20/Alpine-Tutorials/"/>
-    <id>yunke.science/2017/12/20/Alpine-Tutorials/</id>
-    <published>2017-12-20T07:16:25.000Z</published>
-    <updated>2017-12-29T02:02:41.026Z</updated>
-    
-    <content type="html"><![CDATA[<p>欢迎来到教程和Howtos，这是您的Alpine Linux的基本和高级配置任务。<br>这些教程是亲身实践的，读者可以借助一个很好的例子尝试实现每一步中描述的目标。 一步输出是下一步的起点。<br>这些小文章解释了如何使用Alpine Linux来执行特定的任务。<br><a href="https://wiki.alpinelinux.org/wiki/Tutorials_and_Howtos" target="_blank" rel="noopener">https://wiki.alpinelinux.org/wiki/Tutorials_and_Howtos</a></p><p><ul class="markdownIt-TOC"><li><a href="#%E5%AD%98%E5%82%A8">存储</a><ul><li><a href="#%E4%BD%BF%E7%94%A8lvm%E8%AE%BE%E7%BD%AE%E9%80%BB%E8%BE%91%E5%8D%B7">使用LVM设置逻辑卷</a></li></ul></li><li><a href="#%E8%81%94%E7%BD%91">联网</a></li><li><a href="#%E5%AE%89%E8%A3%85%E5%90%8E">安装后</a></li><li><a href="#%E8%99%9A%E6%8B%9F%E5%8C%96">虚拟化</a></li><li><a href="#%E6%A1%8C%E9%9D%A2%E7%8E%AF%E5%A2%83">桌面环境</a></li><li><a href="#%E5%BA%94%E7%94%A8">应用</a><ul><li><a href="#%E9%82%AE%E4%BB%B6">邮件</a></li><li><a href="#http">HTTP</a></li><li><a href="#%E5%85%B6%E4%BB%96%E6%9C%8D%E5%8A%A1%E5%99%A8">其他服务器</a></li><li><a href="#%E7%9B%91%E6%8E%A7">监控</a></li><li><a href="#%E5%AE%8C%E6%95%B4%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88">完整解决方案</a></li></ul></li></ul></p><h2><span id="存储"> 存储</span></h2><h3><span id="使用lvm设置逻辑卷"> 使用LVM设置逻辑卷</span></h3><p><a href="https://wiki.alpinelinux.org/wiki/Setting_up_Logical_Volumes_with_LVM" target="_blank" rel="noopener">https://wiki.alpinelinux.org/wiki/Setting_up_Logical_Volumes_with_LVM</a></p><blockquote><p>本文档介绍如何使用lvm2在Alpine中创建逻辑卷。<br>LVM是程序的集合，允许将更大的物理磁盘重新组合成“逻辑”磁盘，随着数据需求的变化，这些磁盘可以收缩或扩展。<br>在本文档中，我们将使用软件RAID1设备作为逻辑卷的物理存储。 我们将为vserver设置一个交换分区和一个数据分区</p></blockquote><p>加载内核驱动 dm-mod , 配置重启时被加载，添加 用户空间程序</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">modprobe dm-mod</span><br><span class="line"></span><br><span class="line">echo dm-mod &gt;&gt; /etc/modules</span><br><span class="line"></span><br><span class="line">apk add lvm2</span><br></pre></td></tr></table></figure><p>准备物理磁盘，创建物理卷，卷组，逻辑卷</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">pvcreate /dev/md0</span><br><span class="line"></span><br><span class="line">vgcreate vg0 /dev/md0</span><br><span class="line"></span><br><span class="line">lvcreate -n swap -L 1G vg0</span><br><span class="line">lvcreate -n vservers -L 6G vg0</span><br></pre></td></tr></table></figure><p>Display Logical Volumes</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lvdisplay</span><br></pre></td></tr></table></figure><p>Rename Logical Volumes</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lvrename /dev/vg0/vservers /dev/vg0/database</span><br></pre></td></tr></table></figure><p>Extend Logical Volumes</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">在原有基础上增加 50G</span><br><span class="line">lvextend -L +50G /dev/vg0/vservers</span><br><span class="line">将空间设置为 10G</span><br><span class="line">lvextend -L 10G /dev/vg0/vservers</span><br></pre></td></tr></table></figure><p>Start LVM during Boot<br>我们希望lvm在启动时启动逻辑卷。 有一个名为lvm的引导服务来执行此操作。 如果您的卷在RAID上，请确保在mdadm-raid之后启动了/etc/init.d/lvm 。</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">rc-update add lvm</span><br><span class="line"></span><br><span class="line">Or, on Alpine Linux 1.8 or earlier:</span><br><span class="line">rc_add -s 12 -k lvm</span><br></pre></td></tr></table></figure><p>Setting up swap</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkswap /dev/vg0/swap</span><br><span class="line"></span><br><span class="line">Add the following line to your /etc/fstab:</span><br><span class="line">/dev/vg0/swap   none            swap     sw    0 0</span><br></pre></td></tr></table></figure><p>Setting up /vservers partition<br>我们要为/ vserver设置一个XFS分区，创建文件系统。</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">apk add xfsprogs</span><br><span class="line"></span><br><span class="line">Create filesystem on /dev/vg0/vservers.</span><br><span class="line">mkfs.xfs /dev/vg0/vservers</span><br><span class="line"></span><br><span class="line">将挂载信息添加到/ etc / fstab中：</span><br><span class="line">/dev/vg0/vservers /vservers     xfs     noatime,tagxid 0 0</span><br></pre></td></tr></table></figure><p>Starting localmount and swap<br>确保我们在启动时也运行localmount ，并且在lvm之后完成。 在Alpine Linux 1.9及更高版本中，这不再需要</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mount /vservers</span><br></pre></td></tr></table></figure><p>启动交换服务，并确保它在下次重启时启动，并在 lvm 之后启动。</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/init.d/swap start rc-update add swap</span><br></pre></td></tr></table></figure><h2><span id="联网"> 联网</span></h2><h2><span id="安装后"> 安装后</span></h2><h2><span id="虚拟化"> 虚拟化</span></h2><h2><span id="桌面环境"> 桌面环境</span></h2><h2><span id="应用"> 应用</span></h2><h3><span id="邮件"> 邮件</span></h3><h3><span id="http"> HTTP</span></h3><h3><span id="其他服务器"> 其他服务器</span></h3><h3><span id="监控"> 监控</span></h3><h3><span id="完整解决方案"> 完整解决方案</span></h3>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;p&gt;欢迎来到教程和Howtos，这是您的Alpine Linux的基本和高级配置任务。&lt;br&gt;
-这些教程是亲身实践的，读者可以借助一个很好的例子尝试实现每一步中描述的目标。 一步输出是下一步的起点。&lt;br&gt;
-这些小文章解释了如何使用Alpine Linux来执行特定的任务。&lt;b
-      
-    
-    </summary>
     
     
   </entry>
