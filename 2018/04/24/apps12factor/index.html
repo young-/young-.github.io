@@ -1,0 +1,69 @@
+<!DOCTYPE html><html lang="[&quot;zh-CN&quot;,&quot;en&quot;,&quot;default&quot;]"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>云原生时代下的12-Factor应用与实践 | 天青色等烟雨  而我在等你</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.2"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/7.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+ga('create','UA-87247047-1','auto');ga('send','pageview');</script></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">云原生时代下的12-Factor应用与实践</h1><a id="logo" href="/.">天青色等烟雨  而我在等你</a><p class="description">文不在多、有换则新、人不在挤、有来就行</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">云原生时代下的12-Factor应用与实践</h1><div class="post-meta">Apr 24, 2018</div><div class="post-content"><p>如今，软件通常会作为一种服务来交付，它们被称为网络应用程序，或软件即服务（SaaS）。12-Factor 为构建如下的 SaaS 应用提供了方法论：</p>
+<ul>
+<li>使用<strong>标准化</strong>流程自动配置，从而使新的开发者花费最少的学习成本加入这个项目。</li>
+<li>和操作系统之间尽可能的<strong>划清界限</strong>，在各个系统中提供<strong>最大的可移植性</strong>。</li>
+<li>适合<strong>部署</strong>在现代的<strong>云计算平台</strong>，从而在服务器和系统管理方面节省资源。</li>
+<li>将开发环境和生产环境的<strong>差异降至最低</strong>，并使用<strong>持续交付</strong>实施敏捷开发。</li>
+<li>可以在工具、架构和开发流程不发生明显变化的前提下实现<strong>扩展</strong>。</li>
+</ul>
+<p>这套理论适用于任意语言和后端服务（数据库、消息队列、缓存等）开发的应用程序。</p>
+<a id="more"></a>
+<p><ul class="markdownIt-TOC">
+<li><a href="#%E8%83%8C%E6%99%AF">背景</a></li>
+<li><a href="#i-%E5%9F%BA%E5%87%86%E4%BB%A3%E7%A0%81">[I. 基准代码]</a></li>
+<li><a href="#ii-%E4%BE%9D%E8%B5%96">[II. 依赖]</a></li>
+<li><a href="#iii-%E9%85%8D%E7%BD%AE">[III. 配置]</a></li>
+<li><a href="#iv-%E5%90%8E%E7%AB%AF%E6%9C%8D%E5%8A%A1">[IV. 后端服务]</a></li>
+<li><a href="#v-%E6%9E%84%E5%BB%BA%E5%8F%91%E5%B8%83%E8%BF%90%E8%A1%8C">[V. 构建，发布，运行]</a></li>
+<li><a href="#vi-%E8%BF%9B%E7%A8%8B">[VI. 进程]</a></li>
+<li><a href="#vii-%E7%AB%AF%E5%8F%A3%E7%BB%91%E5%AE%9A">[VII. 端口绑定]</a></li>
+<li><a href="#viii-%E5%B9%B6%E5%8F%91">[VIII. 并发]</a></li>
+<li><a href="#ix-%E6%98%93%E5%A4%84%E7%90%86">[IX. 易处理]</a></li>
+<li><a href="#x-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E4%B8%8E%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E7%AD%89%E4%BB%B7">[X. 开发环境与线上环境等价]</a></li>
+<li><a href="#xi-%E6%97%A5%E5%BF%97">[XI. 日志]</a></li>
+<li><a href="#xii-%E7%AE%A1%E7%90%86%E8%BF%9B%E7%A8%8B">[XII. 管理进程]</a></li>
+</ul>
+</p>
+<h2><span id="背景"> 背景</span></h2>
+<p>==========</p>
+<p>本文的贡献者者参与过数以百计的应用程序的开发和部署，并通过 <a href="http://www.heroku.com/" target="_blank" rel="noopener">Heroku</a> 平台间接见证了数十万应用程序的开发，运作以及扩展的过程。</p>
+<p>本文综合了我们关于 SaaS 应用几乎所有的经验和智慧，是开发此类应用的理想实践标准，并特别关注于应用程序如何保持良性成长，开发者之间如何进行有效的代码协作，以及如何 <a href="http://blog.heroku.com/archives/2011/6/28/the_new_heroku_4_erosion_resistance_explicit_contracts/" target="_blank" rel="noopener">避免软件污染</a> 。</p>
+<p>我们的初衷是分享在现代软件开发过程中发现的一些系统性问题，并加深对这些问题的认识。我们提供了讨论这些问题时所需的共享词汇，同时使用相关术语给出一套针对这些问题的广义解决方案。本文格式的灵感来自于 Martin Fowler 的书籍： <em><a href="http://books.google.com/books/about/Patterns_of_enterprise_application_archi.html?id=FyWZt5DdvFkC" target="_blank" rel="noopener">Patterns of Enterprise Application Architecture</a></em> ， <em><a href="http://books.google.com/books/about/Refactoring.html?id=1MsETFPD3I0C" target="_blank" rel="noopener">Refactoring</a></em> 。</p>
+<h2><span id="i-基准代码"> [I. 基准代码]</span></h2>
+<p>一份基准代码，多份部署</p>
+<h2><span id="ii-依赖"> [II. 依赖]</span></h2>
+<p>显式声明依赖关系</p>
+<h2><span id="iii-配置"> [III. 配置]</span></h2>
+<p>在环境中存储配置</p>
+<h2><span id="iv-后端服务"> [IV. 后端服务]</span></h2>
+<p>把后端服务当作附加资源</p>
+<h2><span id="v-构建发布运行"> [V. 构建，发布，运行]</span></h2>
+<p>严格分离构建和运行</p>
+<h2><span id="vi-进程"> [VI. 进程]</span></h2>
+<p>以一个或多个无状态进程运行应用</p>
+<h2><span id="vii-端口绑定"> [VII. 端口绑定]</span></h2>
+<p>通过端口绑定提供服务</p>
+<h2><span id="viii-并发"> [VIII. 并发]</span></h2>
+<p>通过进程模型进行扩展</p>
+<h2><span id="ix-易处理"> [IX. 易处理]</span></h2>
+<p>快速启动和优雅终止可最大化健壮性</p>
+<h2><span id="x-开发环境与线上环境等价"> [X. 开发环境与线上环境等价]</span></h2>
+<p>尽可能的保持开发，预发布，线上环境相同</p>
+<h2><span id="xi-日志"> [XI. 日志]</span></h2>
+<p>把日志当作事件流</p>
+<h2><span id="xii-管理进程"> [XII. 管理进程]</span></h2>
+<p>后台管理任务当作一次性进程运行</p>
+</div><script type="text/javascript" src="/js/share.js?v=0.0.2" async></script><a class="article-share-link" data-url="yunke.science/2018/04/24/apps12factor/" data-id="cjgdscyo2000eucvhkrxhmk7i" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABwElEQVR42u3aQXLDIAwF0Nz/0u4BOiZfkiFN57HyJDY8e6FBEq9XPK5f4+6eu+v1Lw8PXFzcMfdajjX37pf1WutXevNpcHFxD3LzqavBbjI/Li7ut3CTjU5+Dy4u7n/lVlMdXFzcb+EmyU/ykvnM23M1XFzcATevUu673lLfxcXFbXGv4li/wGSrFK2Oi4t7hDvfrOSlkHkRFhcX91Pcu4DVS2MSdPVfXFzc3dx8a1Ld1lQzl+Rj4eLinuH2Jk1eqTeqBVlcXNwd3OoD1QMZ+T1RaMPFxT3CnZQ7J0vmBZFRCoSLi9viJo2NfLo8nCVh7rbzg4uLe4SbP9aDVrdQUU8YFxd3GzcPQNVWay+ERY0ZXFzcI9x86nwzVA2OzYwNFxd3G7fXMslLKr0NUxR3cXFxN3OTMugcVA1huLi4f5ObB6+8VDoauLi4m7mTg1OTcsk6VEWlUlxc3G3cXgzJ2x7PHuzAxcU9yc0X7pVE8yZK+RwZLi7uZm6vuVINW9X2SbMsgouL+yHuPB3Kw+gDgQwXF/cIN2+aVtszb4S4uLgHuXmBI09U5gc7cHFxP8WthpJJuzQvvD5Q38XFxe1wfwAk1uIxXm0TVAAAAABJRU5ErkJggg==">分享</a><div class="tags"><a href="/tags/架构/">架构</a></div><div class="post-nav"><a class="next" href="/2018/04/23/nginx-optimize/">nginx 配置性能优化</a></div><div id="container"></div><link rel="stylesheet" href="/css/default.css?v=0.0.2"><script src="/js/gitment.browser.js?v=0.0.2"></script><script>var gitment = new Gitment({
+  owner: 'young-0',
+  repo: 'young-0.github.io',
+  oauth: {
+    client_id: '967eeda5599f16063a0a',
+    client_secret: '0c5aaeec2649210043608d7a09c7d19f0795f3f9',
+  },
+})
+gitment.render('container')
+</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="yunke.science"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Kubernetes/">Kubernetes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/elk/">elk</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/fiction/">fiction</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/monitor/">monitor</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/nginx/">nginx</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/python/">python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/其他/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/网络/">网络</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/美文/">美文</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/traefik/" style="font-size: 15px;">traefik</a> <a href="/tags/Kubernetes/" style="font-size: 15px;">Kubernetes</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/openresty/" style="font-size: 15px;">openresty</a> <a href="/tags/LuaRocks/" style="font-size: 15px;">LuaRocks</a> <a href="/tags/fiction/" style="font-size: 15px;">fiction</a> <a href="/tags/架构/" style="font-size: 15px;">架构</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/elk/" style="font-size: 15px;">elk</a> <a href="/tags/crond/" style="font-size: 15px;">crond</a> <a href="/tags/alpine/" style="font-size: 15px;">alpine</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/monitor/" style="font-size: 15px;">monitor</a> <a href="/tags/kubernetes/" style="font-size: 15px;">kubernetes</a> <a href="/tags/kcptun/" style="font-size: 15px;">kcptun</a> <a href="/tags/zabbix/" style="font-size: 15px;">zabbix</a> <a href="/tags/美文/" style="font-size: 15px;">美文</a> <a href="/tags/网络/" style="font-size: 15px;">网络</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/04/24/apps12factor/">云原生时代下的12-Factor应用与实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/23/nginx-optimize/">nginx 配置性能优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/22/zabbix-depend/">zabbix 3.4 新特性：从属监控项</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/22/kcptun4zabbix/">使用kcptun建立UDP隧道传输数据</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/20/zabbix-macros/">zabbix 宏概念及使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/20/ip-netmaster/">ip 子网划分的两个例子</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/19/meiwen01/">凡是让人幸福的东西，往往又会成为他不幸的源泉。</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/19/MADEOFMEAT/">THEY'RE MADE OUT OF MEAT (他们是肉造的！)</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/16/JSONPath/">kubectl 的 JSONPath 查询支持</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/15/k8s-hook/">使用k8s容器钩子确保服务安全退出</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="http://www.21andy.com/manual/advanced-bash-scripting-guide/" title="高级Bash脚本编程指南" target="_blank">高级Bash脚本编程指南</a><ul></ul><a href="http://www.colasoft.com.cn/training/document.php" title="网络分析技术学习资料" target="_blank">网络分析技术学习资料</a><ul></ul><a href="https://k8smeetup.github.io/docs/home/" title="Kubernetes 文档" target="_blank">Kubernetes 文档</a><ul></ul><a href="https://www.bilibili.com/video/av21179285" title="TCPIP协议详解" target="_blank">TCPIP协议详解</a><ul></ul><a href="https://www.bilibili.com/video/av21540971" title="python数据结构与算法系列课程" target="_blank">python数据结构与算法系列课程</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">天青色等烟雨  而我在等你.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.2" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.2" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.css"><script type="text/javascript" color="0,0,0" opacity="0.5" zIndex="-2" count="50" src="//cdn.bootcss.com/canvas-nest.js/1.0.1/canvas-nest.min.js"></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.2"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.2"></script></div></body></html>
