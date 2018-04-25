@@ -34,7 +34,7 @@ ga('create','UA-87247047-1','auto');ga('send','pageview');</script></head><body>
 <p>本文综合了我们关于 SaaS 应用几乎所有的经验和智慧，是开发此类应用的理想实践标准，并特别关注于应用程序如何保持良性成长，开发者之间如何进行有效的代码协作，以及如何 <a href="http://blog.heroku.com/archives/2011/6/28/the_new_heroku_4_erosion_resistance_explicit_contracts/" target="_blank" rel="noopener">避免软件污染</a> 。</p>
 <p>12-Factor，是由Heroku创始人Adam Wiggins首次提出并开源，并由众多经验丰富的开发者共同完善，这综合了他们关于SaaS应用几乎所有的经验和智慧，是开发此类应用的理想实践标准。</p>
 <p>12-Factor 全称叫 The Twelve-Factor App，它定义了一个优雅的互联网应用在设计过程中，需要遵循的一些基本原则，和 Cloud-Native 有异曲同工之处。其中文翻译不少，我觉得“十二要素”或“十二原则”比较贴切，</p>
-<p><img src="http://dockone.io/uploads/article/20170221/e7c173d8879951c7ae5ab61c49f1bde1.png" alt="image"></p>
+<img src="/2018/04/24/apps12factor/e7c173d8879951c7ae5ab61c49f1bde1.png" title="The Twelve-Factor App">
 <h2><span id="i-基准代码"> [I. 基准代码]</span></h2>
 <p><strong>一份基准代码，多份部署</strong></p>
 <p>每一个部署的应用都在版本控制代码库中被追踪。在多个部署环境中,会有多种部署实例,单个应用只有一份代码库,多份部署相当于运行了该应用的多个实例,比如开发环境一个实例,测试环境、生产环境都有一个实例。</p>
@@ -68,7 +68,7 @@ ga('create','UA-87247047-1','auto');ga('send','pageview');</script></head><body>
 <p><strong>通过进程模型进行扩展</strong></p>
 <p>进程可以看作一等公民,并发性即可以依靠水平扩展应用程序来实现,通过进程模型进行扩展,并且具备无共享、水平分区的特性。<br>
 在互联网的服务中,业务的爆发性随时可能发生,因此不太可能通过硬件扩容来随时扩展。</p>
-<p><img src="https://raw.githubusercontent.com/bingohuang/12factor-gitbook/master/images/process-types.png" alt="image"></p>
+<img src="/2018/04/24/apps12factor/process-types.png" title="进程模型">
 <h2><span id="ix-易处理"> [IX. 易处理]</span></h2>
 <p><strong>快速启动和优雅终止可最大化健壮性</strong><br>
 所有应用的架构设计都需要支持能随时销毁的特点,和状态的无关性保持一致,允许系统快速弹性扩展、改变部署及故障恢复等。</p>
