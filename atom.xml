@@ -272,9 +272,9 @@
       <category term="Kubernetes" scheme="yunke.science/categories/Kubernetes/"/>
     
     
-      <category term="Kubernetes" scheme="yunke.science/tags/Kubernetes/"/>
-    
       <category term="docker" scheme="yunke.science/tags/docker/"/>
+    
+      <category term="Kubernetes" scheme="yunke.science/tags/Kubernetes/"/>
     
   </entry>
   
@@ -428,9 +428,9 @@ Kubeadm执行必要的操作以启动并运行最小的可用群集。 按照设
       <category term="Kubernetes" scheme="yunke.science/categories/Kubernetes/"/>
     
     
-      <category term="Kubernetes" scheme="yunke.science/tags/Kubernetes/"/>
-    
       <category term="docker" scheme="yunke.science/tags/docker/"/>
+    
+      <category term="Kubernetes" scheme="yunke.science/tags/Kubernetes/"/>
     
   </entry>
   
@@ -459,9 +459,9 @@ Kubeadm执行必要的操作以启动并运行最小的可用群集。 按照设
       <category term="Kubernetes" scheme="yunke.science/categories/Kubernetes/"/>
     
     
-      <category term="Kubernetes" scheme="yunke.science/tags/Kubernetes/"/>
-    
       <category term="docker" scheme="yunke.science/tags/docker/"/>
+    
+      <category term="Kubernetes" scheme="yunke.science/tags/Kubernetes/"/>
     
       <category term="traefik" scheme="yunke.science/tags/traefik/"/>
     
