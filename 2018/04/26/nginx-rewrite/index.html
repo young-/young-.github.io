@@ -8,7 +8,11 @@ ga('create','UA-87247047-1','auto');ga('send','pageview');</script></head><body>
 <li><a href="#%E5%AF%B9%E6%AF%94return-rewrite%E5%92%8Ctry_files%E6%8C%87%E4%BB%A4">对比return, rewrite,和try_files指令</a>
 <ul>
 <li><a href="#return%E6%8C%87%E4%BB%A4">return指令</a></li>
-<li><a href="#rewrite%E6%8C%87%E4%BB%A4">rewrite指令</a></li>
+<li><a href="#rewrite%E6%8C%87%E4%BB%A4">rewrite指令</a>
+<ul>
+<li><a href="#rewrtie%E5%9B%9B%E7%A7%8Dflag">rewrtie四种flag</a></li>
+</ul>
+</li>
 <li><a href="#try_files-%E6%8C%87%E4%BB%A4">try_files 指令</a></li>
 </ul>
 </li>
@@ -72,6 +76,15 @@ Converting Apache Rewrite Rules to NGINX Rewrite Rules.<br>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    ...</span><br><span class="line">    rewrite ^(/download/.*)/media/(.*)\..*$ $1/mp3/$2.mp3 last;</span><br><span class="line">    rewrite ^(/download/.*)/audio/(.*)\..*$ $1/mp3/$2.ra  last;</span><br><span class="line">    return  403;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>我们上面提到你可以添加标志到rewrite指令来控制处理的流程。 示例中的最后一个标志是其中之一：它指示NGINX跳过当前服务器或位置块中的任何后续Rewrite-module伪指令，并开始搜索与重写的URL匹配的新位置。<br>
 在这个例子中的最终return指令意味着如果URL不匹配rewrite指令，代码403返回到客户端。</p>
+<h4><span id="rewrtie四种flag"> rewrtie四种flag</span></h4>
+<p>对于rewrtie有四种不同的flag，分别是redirect、permanent、break和last。<br>
+其中前两种是跳转型的flag，后两种是代理型。跳转型是指有客户端浏览器重新对新地址进行请求，代理型是在WEB服务器内部实现跳转的。</p>
+<ul>
+<li>redirect：302跳转到rewrtie后面的地址。</li>
+<li>permanent：301永久调整到rewrtie后面的地址，即当前地址已经永久迁移到新地址，一般是为了对搜索引擎友好。</li>
+<li>last：<mark>将rewrite后的地址重新在server标签执行。</mark></li>
+<li>break：<mark>将rewrite后地址重新在当前的location标签执行。</mark></li>
+</ul>
 <h3><span id="try_files-指令"> try_files 指令</span></h3>
 <p>类似return和 rewrite指令，try_files  指令位于server和location块中。它需要一个或多个文件和目录以及最终URI的列表作为参数：</p>
 <p><code>try_files file … uri;</code></p>
