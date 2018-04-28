@@ -12,7 +12,7 @@ ga('create','UA-87247047-1','auto');ga('send','pageview');</script></head><body>
 </p>
 <h2><span id="text-vs-keyword"> Text vs. keyword</span></h2>
 <p>对于这两种截然不同的用例使用相同的字段类型这一事实会产生问题，因为某些选项只对某个用例有意义。 例如， position_increment_gap 对于 not_analyzed 字符串没有什么意义，在 analyzed 字符串的情况下 ignore_above 是否适用于整个值或单个标记并不明显（如果您想知道：它是否适用于整个值，个别令牌可以与限制令牌过滤器一起应用）。</p>
-<p>为了避免这些问题， string字段分为两种新类型：应该用于全文搜索的文本和用于关键字搜索的关键字。</p>
+<p>为了避免这些问题， string字段分为两种新类型：应该用于全文搜索的text和用于关键字搜索的keyword。</p>
 <h2><span id="new-defaults"> New defaults</span></h2>
 <p>因此，我们做了这个分割，我们决定改变字符串字段的默认动态映射。 当开始使用 Elasticsearch 时，一个常见的沮丧情况是您必须重新编制索引，以便能够汇总整个字段值。 例如，想象一下，你正在索引一个city领域的文件。 在这个领域的聚合会给york和york带来不同的计数，而不是york的单一计数，这通常是预期的行为。 不幸的是，解决这个问题需要重新索引字段，以便索引具有正确的结构来回答这个问题。</p>
 <p>为了使事情变得更好，Elasticsearch决定借用一个最初源于Logstash的思想：字符串默认情况下将被映射为text和keyword 。 例如，如果您编制以下简单的文件：</p>
