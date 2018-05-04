@@ -1,0 +1,195 @@
+<!DOCTYPE html><html lang="[&quot;zh-CN&quot;,&quot;en&quot;,&quot;default&quot;]"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>大规模Elasticsearch集群优化管理 | 天青色等烟雨</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.2"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/7.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+ga('create','UA-87247047-1','auto');ga('send','pageview');</script></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">大规模Elasticsearch集群优化管理</h1><a id="logo" href="/.">天青色等烟雨</a><p class="description">文不在多、有换则新、人不在挤、有来就行</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">大规模Elasticsearch集群优化管理</h1><div class="post-meta">May 4, 2018<span> | </span><span class="category"><a href="/categories/elk/">elk</a></span></div><div class="post-content"><p>简单的优化，让集群发挥更大的效率。</p>
+<a id="more"></a>
+<p><ul class="markdownIt-TOC">
+<li><a href="#%E5%AE%89%E8%A3%85">安装</a></li>
+<li><a href="#%E7%AE%A1%E7%90%86">管理</a>
+<ul>
+<li><a href="#%E5%AF%B9es%E7%9A%84%E7%BB%93%E7%82%B9%E5%81%9A%E8%A7%92%E8%89%B2%E5%88%92%E5%88%86%E5%92%8C%E9%9A%94%E7%A6%BB">对ES的结点做角色划分和隔离</a></li>
+<li><a href="#%E9%81%BF%E5%85%8D%E8%BF%87%E9%AB%98%E7%9A%84%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6shard%E6%95%B0%E9%87%8F%E5%92%8Cthreadpool%E7%9A%84%E6%95%B0%E9%87%8F">避免过高的并发，控制shard数量和threadpool的数量</a></li>
+<li><a href="#%E5%86%B7%E7%83%AD%E6%95%B0%E6%8D%AE%E6%9C%80%E5%A5%BD%E5%81%9A%E5%88%86%E7%A6%BB">冷热数据最好做分离</a></li>
+<li><a href="#%E4%B8%8D%E5%90%8C%E6%95%B0%E6%8D%AE%E9%87%8F%E7%BA%A7%E7%9A%84shard%E6%9C%80%E5%A5%BD%E9%9A%94%E7%A6%BB%E5%88%B0%E4%B8%8D%E5%90%8C%E7%BB%84%E5%88%AB%E7%9A%84%E7%BB%93%E7%82%B9">不同数据量级的shard最好隔离到不同组别的结点</a></li>
+<li><a href="#%E5%AF%B9%E7%B4%A2%E5%BC%95%E7%9A%84%E4%B8%80%E4%BA%9B%E6%93%8D%E4%BD%9C">对索引的一些操作</a>
+<ul>
+<li><a href="#%E5%88%A0%E9%99%A4%E4%B8%8D%E7%94%A8%E7%9A%84%E7%B4%A2%E5%BC%95">删除不用的索引</a></li>
+<li><a href="#%E5%85%B3%E9%97%AD%E7%B4%A2%E5%BC%95-%E6%96%87%E4%BB%B6%E4%BB%8D%E7%84%B6%E5%AD%98%E5%9C%A8%E4%BA%8E%E7%A3%81%E7%9B%98%E5%8F%AA%E6%98%AF%E9%87%8A%E6%94%BE%E6%8E%89%E5%86%85%E5%AD%98-%E9%9C%80%E8%A6%81%E7%9A%84%E6%97%B6%E5%80%99%E5%8F%AF%E4%BB%A5%E9%87%8D%E6%96%B0%E6%89%93%E5%BC%80">关闭索引 （文件仍然存在于磁盘，只是释放掉内存）。需要的时候可以重新打开。</a></li>
+<li><a href="#%E5%AE%9A%E6%9C%9F%E5%81%9A%E7%B4%A2%E5%BC%95%E7%9A%84force-merge">定期做索引的force merge</a></li>
+</ul>
+</li>
+<li><a href="#%E5%BD%93%E8%8A%82%E7%82%B9%E7%A6%BB%E5%BC%80%E6%97%B6%E5%BB%B6%E8%BF%9F%E5%88%86%E9%85%8D">当节点离开时延迟分配</a></li>
+</ul>
+</li>
+<li><a href="#%E7%9B%91%E6%8E%A7">监控</a></li>
+</ul>
+</p>
+<h2><span id="安装"> 安装</span></h2>
+<ol>
+<li>
+<p>从一开始，哪怕就只有几个node，就应该使用分布式配置管理工具来做集群的部署。随着应用的成熟，集群规模的逐步扩大，效率的提升会凸显。 官方提供了 <a href="https://github.com/elastic/puppet-elasticsearch" target="_blank" rel="noopener">puppet-elasticsearch</a> 和 Chef <a href="https://github.com/elastic/cookbook-elasticsearch" target="_blank" rel="noopener">cookbook-elasticsearch</a> ，熟悉这两个工具的同学可以直接拿过来用。用熟这类工具，对于集群的初始部署，配置批量更改，集群版本升级，重启故障结点都会快捷和安全许多。</p>
+</li>
+<li>
+<p>第二个必备利器就是sense插件。通过这个插件直接调用集群的restful API，在做集群和索引的状态查看，索引配置更改的时候非常方便。语法提示和自动补全功能更是实用，减少了翻看文档的频率。在Kibana5里面，sense已经成为一个内置的控制台，无需额外安装。</p>
+</li>
+</ol>
+<h2><span id="管理"> 管理</span></h2>
+<h3><span id="对es的结点做角色划分和隔离"> 对ES的结点做角色划分和隔离</span></h3>
+<p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-node.html" target="_blank" rel="noopener">Elasticsearch Reference  » Modules » Node</a></p>
+<p>默认情况下，每个节点都有成为主节点的资格，也会存储数据，还会处理客户端的请求。 这对于小型群集非常方便，但随着群集的增长，考虑将专用主节点从专用数据节点中分离出来非常重要。</p>
+<p>对于一个规模较大，用户较多的集群，master和client在一些极端使用情况下可能会有性能瓶颈甚至内存溢出，从而使得共存的data node故障。data node的故障恢复涉及到数据的迁移，对集群资源有一定消耗，容易造成数据写入延迟或者查询减慢。如果将master和client独立出来，一旦出现问题，重启后几乎是瞬间就恢复的，对用户几乎没有任何影响。另外将这些角色独立出来的以后，也将对应的计算资源消耗从data node剥离出来，更容易掌握data node资源消耗与写入量和查询量之间的联系，便于做容量管理和规划。</p>
+<p>所有节点都知道群集中的所有其他节点，并且可以将客户端请求转发到适当的节点。 除此之外，每个节点都有一个或多个目的：</p>
+<ul>
+<li>具有master资格的节点<br>
+<code>node.master</code>设置为<code>true</code> （默认）的节点，这使得它有资格被选为控制集群的主节点 。</li>
+<li>数据节点<br>
+<code>node.data</code>设置为<code>true</code>节点（默认）。 数据节点保存数据并执行数据相关的操作，如CRUD，搜索和聚合。</li>
+<li>数据提取节点,client节点<br>
+<code>node.ingest</code>设置为<code>true</code>节点（默认）。 摄取节点可以执行由一个或多个摄取处理器组成的预处理流水线。 根据摄取处理器执行的操作类型和所需资源，具有专用摄入节点可能是有意义的，它只会执行此特定任务。负责处理用户请求，实现请求转发，负载均衡等功能。</li>
+<li>多个集群查询请求分发节点<br>
+通过<code>tribe.*</code>设置配置的集群节点是一种特殊类型的协调节点，可以连接到多个群集并在所有连接的群集中执行搜索和其他操作。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">通过将对应的参数设置为 true ，来启用某个功能  </span><br><span class="line">node.master: true </span><br><span class="line">node.data: false </span><br><span class="line">node.ingest: false </span><br><span class="line">search.remote.connect: false </span><br><span class="line"></span><br><span class="line">node.master 角色默认启用。</span><br><span class="line">禁用 node.data 角色（默认情况下启用）。</span><br><span class="line">禁用 node.ingest 角色（默认情况下启用）。</span><br><span class="line">禁用跨群集搜索（默认启用）。</span><br></pre></td></tr></table></figure>
+<h3><span id="避免过高的并发控制shard数量和threadpool的数量"> 避免过高的并发，控制shard数量和threadpool的数量</span></h3>
+<p>在写入量和查询性能能够满足的前提下，为索引分配尽量少的分片。</p>
+<p>分片过多会带来诸多负面影响，例如：每次查询后需要汇总排序的数据更多；过多的并发带来的线程切换造成过多的CPU损耗；索引的删除和配置更新更慢Issue#18776;<br>
+过多的shard也带来更多小的segment，而过多的小segment会带来非常显著的heap内存消耗，特别是如果查询线程配置得很多的情况下。</p>
+<p>配置过大的threadpool更是会产生很多诡异的性能问题Issue#18161里所描述的问题就是我们所经历过的。 默认的Theadpool大小一般来说工作得很不错了。</p>
+<h3><span id="冷热数据最好做分离"> 冷热数据最好做分离</span></h3>
+<p>对于日志型应用来说，一般是每天建立一个新索引，当天的热索引在写入的同时也会有较多的查询。如果上面还存有比较长时间之前的冷数据，那么当用户做大跨度的历史数据查询的时候，过多的磁盘IO和CPU消耗很容易拖慢写入，造成数据的延迟。</p>
+<p>所以我们用了一部分机器来做冷数据的存储，利用ES可以给结点配置自定义属性的功能，为冷结点加上&quot;boxtype&quot;:&quot;weak&quot;的标识，每晚通过维护脚本更新冷数据的索引路由设置index.routing.allocation.{require|include|exclude}，让数据自动向冷结点迁移。</p>
+<p>冷数据的特性是不再写入，用户查的频率较低，但量级可能很大。比如我们有个索引每天2TB，并且用户要求保持过去90天数据随时可查。保持这么大量的索引为open状态，并非只消耗磁盘空间。ES为了快速访问磁盘上的索引文件，需要在内存里驻留一些数据(索引文件的索引)，也就是所谓的segment memory。</p>
+<p>稍微熟悉ES的同学知道，JVM heap分配不能超过32GB，对于我们128GB RAM, 48TB磁盘空间的机器而言，如果只跑一个ES实例，只能利用到32GB不到的heap，当heap快用饱和的时候，磁盘上保存的索引文件还不到10TB，这样显然是不经济的。 因此我们决定在冷结点上跑3个ES实例，每个分配31GB heap空间，从而可以在一台物理服务器上存储30多TB的索引数据并保持open状态，供用户随时搜索。 实际使用下来，由于冷数据搜索频率不高，也没有写入，即时只剩余35GB内存给os做文件系统缓存，查询性能还是可以满足需求的。</p>
+<p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/shard-allocation-filtering.html" target="_blank" rel="noopener">索引分片分配过滤</a><br>
+碎片分配过滤允许您指定允许哪些节点托管特定索引的碎片。</p>
+<p>在启动时可以为每个节点分配任意的元数据属性。 例如，可以为节点分配一个rack和一个size属性，如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># elasticsearch.yml</span><br><span class="line">node.attr.rack: rack1</span><br><span class="line">node.attr.size: big</span><br></pre></td></tr></table></figure>
+<p>这些元数据属性可以与<code>index.routing.allocation.*</code>设置一起使用，以将索引分配给特定的一组节点。   例如，我们可以将索引test移动到big或medium节点，如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">PUT test/_settings</span><br><span class="line">&#123;</span><br><span class="line">  &quot;index.routing.allocation.include.size&quot;: &quot;big,medium&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>或者，我们可以使用exclude规则将索引test 从 small节点移开：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">PUT test/_settings</span><br><span class="line">&#123;</span><br><span class="line">  &quot;index.routing.allocation.exclude.size&quot;: &quot;small&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以指定多个规则，在这种情况下必须满足所有条件。 例如，我们可以使用以下命令将索引test移动到rack1 big节点上：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">PUT test/_settings</span><br><span class="line">&#123;</span><br><span class="line">  &quot;index.routing.allocation.include.size&quot;: &quot;big&quot;,</span><br><span class="line">  &quot;index.routing.allocation.include.rack&quot;: &quot;rack1&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><em>如果某些条件不能满足，则碎片不会被移动。</em><br>
+以下设置是动态的 ，允许将活动索引从一组节点移动到另一组节点：</p>
+<ul>
+<li><code>index.routing.allocation.include.{attribute}</code> 将索引分配给<code>{attribute}</code>至少有一个逗号分隔值的节点。</li>
+<li><code>index.routing.allocation.require.{attribute}</code> 将索引分配给<code>{attribute}</code>具有所有逗号分隔值的节点。</li>
+<li><code>index.routing.allocation.exclude.{attribute}</code> 将索引分配给<code>{attribute}</code>包含任何逗号分隔值的节点。</li>
+</ul>
+<p>这些特殊属性也受支持：</p>
+<table>
+<thead>
+<tr>
+<th>attr</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>_name</code></td>
+<td>按节点名称匹配节点</td>
+</tr>
+<tr>
+<td><code>_host_ip</code></td>
+<td>通过主机IP地址匹配节点（与主机名关联的IP）</td>
+</tr>
+<tr>
+<td><code>_publish_ip</code></td>
+<td>通过发布IP地址匹配节点</td>
+</tr>
+<tr>
+<td><code>_ip</code></td>
+<td>匹配<code>_host_ip</code>或<code>_publish_ip</code></td>
+</tr>
+<tr>
+<td><code>_host</code></td>
+<td>通过主机名匹配节点</td>
+</tr>
+</tbody>
+</table>
+<p>所有属性值都可以用通配符指定，例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">PUT test/_settings</span><br><span class="line">&#123;</span><br><span class="line">  &quot;index.routing.allocation.include._ip&quot;: &quot;192.168.2.*&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3><span id="不同数据量级的shard最好隔离到不同组别的结点"> 不同数据量级的shard最好隔离到不同组别的结点</span></h3>
+<p>大家知道ES会自己平衡shard在集群的分布，这个自动平衡的逻辑主要考量三个因素。</p>
+<p>其一同一索引下的shard尽量分散到不同的结点;其二每个结点上的shard数量尽量接近;其三结点的磁盘有足够的剩余空间。<br>
+这个策略只能保证shard数量分布均匀，而并不能保证数据大小分布均匀。</p>
+<p>实际应用中，我们有200多种索引，数据量级差别很大，大的一天几个TB，小的一个月才几个GB，并且每种类型的数据保留时长又千差万别。抛出的问题，就是如何能比较平衡并充分的利用所有节点的资源。</p>
+<p>针对这个问题，我们还是<strong>通过对结点添加属性标签来做分组，结合index routing控制的方式来做一些精细化的控制</strong>。<strong>尽量让不同量级的数据使用不同组别的结点，使得每个组内结点上的数据量比较容易自动平衡</strong>。</p>
+<h3><span id="对索引的一些操作"> 对索引的一些操作</span></h3>
+<p>ES的查询速度和缓存相关，对于内存的消耗，和很多因素相关，诸如数据总量、mapping设置、查询方式、查询频度等等。<br>
+那么有哪些途径减少data node上的segment memory占用呢？ 总结起来有三种方法:</p>
+<h4><span id="删除不用的索引"> 删除不用的索引</span></h4>
+<p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete.html" target="_blank" rel="noopener">Delete API</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DELETE /twitter/_doc/1</span><br></pre></td></tr></table></figure>
+<h4><span id="关闭索引-文件仍然存在于磁盘只是释放掉内存-需要的时候可以重新打开"> 关闭索引 （文件仍然存在于磁盘，只是释放掉内存）。需要的时候可以重新打开。</span></h4>
+<p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/6.2/indices-open-close.html#indices-open-close" target="_blank" rel="noopener">Open / Close Index API</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">POST /my_index/_close</span><br><span class="line"></span><br><span class="line">POST /my_index/_open</span><br></pre></td></tr></table></figure>
+<p>所有操作可以使用<code>_all</code>作为索引名称或指定识别它们的模式（例如<code>*</code> ），立即打开或关闭。</p>
+<h4><span id="定期做索引的force-merge"> 定期做索引的force merge</span></h4>
+<p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-forcemerge.html" target="_blank" rel="noopener">Elasticsearch Reference  » Indices APIs » Force Merge</a></p>
+<p>强制合并API允许强制通过API合并一个或多个索引。 合并涉及Lucene索引在每个分片中保存的分段数量。 强制合并操作允许通过合并它们来减少分段的数量。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">POST /twitter/_forcemerge?max_num_segments=1</span><br></pre></td></tr></table></figure>
+<p>强制合并API可以通过一次调用应用于多个索引，甚至可以<code>_all</code>所有索引。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">POST /kimchy,elasticsearch/_forcemerge</span><br><span class="line"></span><br><span class="line">POST /_forcemerge</span><br></pre></td></tr></table></figure>
+<p><em>max_num_segments<br>
+要合并到的段数。 要完全合并索引，请将其设置为1 。 默认仅仅检查一个合并是否需要执行，如果是的话，执行它。</em></p>
+<p>合并示例：</p>
+<p><code>GET /_cat/indices?v</code><br>
+原始索引 segment的memory占用情况,size.memory之和为 <code>1147554</code><br>
+<code>GET /_cat/segments/nginx-mse-2018.04.19?h=index,shard,segment,size,size.memory</code></p>
+<p>索引 <code>nginx-mse-2018.04.19</code> 的 <code>segments</code> 数量：<br>
+<code>GET /_cat/segments/nginx-mse-2018.04.19?v</code><br>
+共有 81 行。</p>
+<p><strong>执行合并操作：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">POST /nginx-mse-2018.04.18,nginx-mse-2018.04.19,nginx-mse-2018.04.20/_forcemerge?max_num_segments=1</span><br></pre></td></tr></table></figure>
+<p>segment的memory占用情况比较，size.memory之和为 <code>492797</code>,减少<code>1/2</code>多一点<br>
+<code>GET /_cat/segments/nginx-mse-2018.04.19?h=index,shard,segment,size,size.memory</code></p>
+<p>查看索引的 <code>segments</code>数量：<br>
+合并后，segments实际个数为logstash客户端个数。</p>
+<p>查看节点 <code>segments</code> 内存占用情况<br>
+<code>get /_cat/nodes?v&amp;h=segments.count,segments.memory,segments.index_writer_memory,segments.version_map_memory,segments.fixed_bitset_memory</code></p>
+<h3><span id="当节点离开时延迟分配"> 当节点离开时延迟分配</span></h3>
+<p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/delayed-allocation.html#delayed-allocation" target="_blank" rel="noopener">Elasticsearch Reference » Index Modules » Index Shard Allocation » Delaying allocation when a node leaves</a></p>
+<p>当一个节点出于任何原因离开集群时，主动地或以其他方式作出反应：</p>
+<ul>
+<li>将副本分片提升为主节点以替换节点上的任何初选。</li>
+<li>分配副本分片以替换缺失的副本（假设有足够的节点）。</li>
+<li>将剩余节点上的碎片均衡重新平衡。</li>
+</ul>
+<p>这些操作旨在通过确保每个碎片尽快完全复制来保护集群免遭数据丢失。</p>
+<p>尽管我们在节点级别和集群级别上节省并发恢复，但这种“碎片整理”仍然会给群集带来很多额外的负载，如果缺少的节点很快可能会返回，这可能不是必需的。</p>
+<p>由于节点已离开而变成未分配副本碎片的分配可以通过<code>index.unassigned.node_left.delayed_timeout</code>动态设置进行延迟，默认值为1m 。</p>
+<p>此设置可以在实时索引（或所有索引）上更新：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">PUT _all/_settings</span><br><span class="line">&#123;</span><br><span class="line">  &quot;settings&quot;: &#123;</span><br><span class="line">    &quot;index.unassigned.node_left.delayed_timeout&quot;: &quot;5m&quot;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>永久删除节点<br>
+如果一个节点不会返回，并且您希望Elasticsearch立即分配丢失的碎片，只需将超时更新为零即可：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">PUT _all/_settings</span><br><span class="line">&#123;</span><br><span class="line">  &quot;settings&quot;: &#123;</span><br><span class="line">    &quot;index.unassigned.node_left.delayed_timeout&quot;: &quot;0&quot;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2><span id="监控"> 监控</span></h2>
+<p>不差钱没空折腾的建议还是买官方的xpack省心，有精力折腾的，利用ES各种丰富的stats api，用自己熟悉的监控工具采集数据，可视化出来就好了。</p>
+<p>那么多监控指标，最最关键的还是以下几类:</p>
+<p>各类Thread pool的使用情况，active/queue/reject 可视化出来。 <code>get /_nodes/stats</code></p>
+<p>判断集群是否有性能瓶颈了，看看业务高峰期各类queue是不是很高，reject是不是经常发生，基本可以做到心里有数。</p>
+<p>JVM的heap used%以及old GC的频率，如果old GC频率很高，并且多次GC过后heap used%几乎下不来，说明heap压力太大，要考虑扩容了。（也有可能是有问题的查询或者聚合造成的，需要结合用户访问记录来判断)。</p>
+<p>Segment memory大小和Segment的数量。节点上存放的索引较多的时候，这两个指标就值得关注，要知道segment memory是常驻heap不会被GC回收的，因此当heap压力太大的时候，可以结合这个指标判断是否是因为节点上存放的数据过多，需要扩容。Segement的数量也是比较关键的，如果小的segment非常多，比如有几千，即使segment memory本身不多，但是在搜索线程很多的情况下，依然会吃掉相当多的heap，原因是lucene为每个segment会在thread local里记录状态信息，这块的heap内存开销和(segment数量* thread数量)相关。</p>
+<p>很有必要记录用户的访问记录。我们只开放了http api给用户，前置了一个nginx做http代理，将用户第三方api的访问记录通过access log全部记录下来。通过分析访问记录，可以在集群出现性能问题时，快速找到问题根源，对于问题排查和性能优化都很有帮助。</p>
+<p>参考链接：</p>
+<ol>
+<li><a href="https://elasticsearch.cn/article/110" target="_blank" rel="noopener">Day1: 大规模Elasticsearch集群管理心得</a></li>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/delayed-allocation.html" target="_blank" rel="noopener">Delaying allocation when a node leaves</a></li>
+<li><a href="http://www.cnblogs.com/liang1101/p/7284205.html" target="_blank" rel="noopener">http://www.cnblogs.com/liang1101/p/7284205.html</a></li>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/shard-allocation-filtering.html" target="_blank" rel="noopener">Shard Allocation Filtering</a></li>
+<li><a href="https://elasticsearch.cn/article/32" target="_blank" rel="noopener">ES内存那点事</a></li>
+<li><a href="http://docs.flycloud.me/docs/ELKStack/elasticsearch/monitor/api/node-stats.html" target="_blank" rel="noopener">节点状态监控接口</a></li>
+</ol>
+</div><script type="text/javascript" src="/js/share.js?v=0.0.2" async></script><a class="article-share-link" data-url="yunke.science/2018/05/04/elk6-optimize/" data-id="cjgrnw38n0013t00vhhspinls" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABy0lEQVR42u3ayxKCMBBEUf7/p3GrpYndPZOA1s2KEoSTzdQ8chzyOp/W8y/v16O781+aF1y4cMvcc7pGzyjbmG9s/v7hluDChbuRO4oYyjP6ZrL3w4UL9/7ceajSoXDhwv1XbiUNggsX7v25SrKStTncd7bVanDhwi1w9S7luusl/V24cOFG3NNc9daGHrw+fB0uXLhbuHpAccuV0SbdQAYXLtyruG5eoXOVhMm9Cxcu3NVcPaFxRynZt76MZODChbuFm4WV7GNucfUlnMGFC3cZd/6ovmP30Kfy3w9fhAsX7hauHrAqrEpKdGTxFS5cuAVu5aVZ8zQ70vFSq8GFC3cx1w1bWTzRE6bwNBlcuHBbuW6oqgxN3UMYw/4uXLhwF3MrpY7eSK0cqpAGrnDhwl3AVdIXPZBlbRQjgMKFC3cj1x1mZGWPG8LgwoV7LTcbpurJjUKUFly4cBdzs4NTvWNUY/Nw4cLdws1iSFeQcse0cOHC3cntal5kw1ql/WokOnDhwm3lZmPRylA2HO7ChQv39tx6sWScHYMLF+5PcfUCKWt5NAcyuHDhylw9GLmJS3Z3WHrBhQt3C7cyiM0KJCXFaejvwoULN+E+AFgomnkO0TvkAAAAAElFTkSuQmCC">分享</a><div class="tags"><a href="/tags/elk/">elk</a></div><div class="post-nav"><a class="next" href="/2018/05/01/elk-searchspeed/">elasticsearch 加快搜索速度</a></div><div id="container"></div><link rel="stylesheet" href="/css/default.css?v=0.0.2"><script src="/js/gitment.browser.js?v=0.0.2"></script><script>var gitment = new Gitment({
+  owner: 'young-0',
+  repo: 'young-0.github.io',
+  oauth: {
+    client_id: '967eeda5599f16063a0a',
+    client_secret: '0c5aaeec2649210043608d7a09c7d19f0795f3f9',
+  },
+})
+gitment.render('container')
+</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="yunke.science"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Kubernetes/">Kubernetes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/elk/">elk</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/fiction/">fiction</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/monitor/">monitor</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/nginx/">nginx</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/python/">python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/其他/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/网络/">网络</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/美文/">美文</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/Kubernetes/" style="font-size: 15px;">Kubernetes</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/traefik/" style="font-size: 15px;">traefik</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/openresty/" style="font-size: 15px;">openresty</a> <a href="/tags/LuaRocks/" style="font-size: 15px;">LuaRocks</a> <a href="/tags/架构/" style="font-size: 15px;">架构</a> <a href="/tags/crond/" style="font-size: 15px;">crond</a> <a href="/tags/alpine/" style="font-size: 15px;">alpine</a> <a href="/tags/elk/" style="font-size: 15px;">elk</a> <a href="/tags/monitor/" style="font-size: 15px;">monitor</a> <a href="/tags/kcptun/" style="font-size: 15px;">kcptun</a> <a href="/tags/zabbix/" style="font-size: 15px;">zabbix</a> <a href="/tags/网络/" style="font-size: 15px;">网络</a> <a href="/tags/fiction/" style="font-size: 15px;">fiction</a> <a href="/tags/kubernetes/" style="font-size: 15px;">kubernetes</a> <a href="/tags/美文/" style="font-size: 15px;">美文</a> <a href="/tags/情商/" style="font-size: 15px;">情商</a> <a href="/tags/智商/" style="font-size: 15px;">智商</a> <a href="/tags/redis/" style="font-size: 15px;">redis</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/05/04/elk6-optimize/">大规模Elasticsearch集群优化管理</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/01/elk-searchspeed/">elasticsearch 加快搜索速度</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/01/deploy-method/">微服务部署：蓝绿部署、滚动部署、AB测试发布、灰度发布</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/30/redis-aof/">Redis AOF文件 重写操作导致的磁盘和内存不足的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/28/nginx-process/">Nginx 指令的执行顺序</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/26/nginx-rewrite/">创建NGINX重写规则</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/25/meiwen02/">对于大多数普通人而言，情商比智商更重要？</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/24/apps12factor/">云原生时代下的12-Factor应用与实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/23/nginx-optimize/">nginx 配置性能优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/22/zabbix-depend/">zabbix 3.4 新特性：从属监控项</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="advanced-bash-scripting-guide-in-chinese/" title="高级Bash脚本编程指南" target="_blank">高级Bash脚本编程指南</a><ul></ul><a href="http://www.colasoft.com.cn/training/document.php" title="网络分析技术学习资料" target="_blank">网络分析技术学习资料</a><ul></ul><a href="https://k8smeetup.github.io/docs/home/" title="Kubernetes 文档" target="_blank">Kubernetes 文档</a><ul></ul><a href="https://www.bilibili.com/video/av21179285" title="TCPIP协议详解" target="_blank">TCPIP协议详解</a><ul></ul><a href="https://www.bilibili.com/video/av21540971" title="python数据结构与算法系列课程" target="_blank">python数据结构与算法系列课程</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">天青色等烟雨.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.2" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.2" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.css"><script type="text/javascript" color="0,0,0" opacity="0.5" zIndex="-2" count="50" src="//cdn.bootcss.com/canvas-nest.js/1.0.1/canvas-nest.min.js"></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.2"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.2"></script></div></body></html>
