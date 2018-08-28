@@ -1,0 +1,81 @@
+<!DOCTYPE html><html lang="[&quot;zh-CN&quot;,&quot;en&quot;,&quot;default&quot;]"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>redis 安全 | 天青色等烟雨</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.2"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/7.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+ga('create','UA-87247047-1','auto');ga('send','pageview');</script></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">redis 安全</h1><a id="logo" href="/.">天青色等烟雨</a><p class="description">文不在多、有换则新、人不在挤、有来就行</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">redis 安全</h1><div class="post-meta">Aug 28, 2018<span> | </span><span class="category"><a href="/categories/redis/">redis</a></span></div><div class="post-content"><p>本文档从Redis的角度介绍了安全性主题：Redis提供的访问控制，代码安全问题，可以通过选择恶意输入和其他类似主题从外部触发的攻击。</p>
+<p>对于与安全相关的联系人，请在GitHub上打开一个问题，或者当您认为保持通信安全性非常重要时，请使用本文档末尾的GPG密钥。</p>
+<a id="more"></a>
+<p><ul class="markdownIt-TOC">
+<li><a href="#redis%E9%80%9A%E7%94%A8%E5%AE%89%E5%85%A8%E6%A8%A1%E5%9E%8B">Redis通用安全模型</a></li>
+<li><a href="#%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8">网络安全</a></li>
+<li><a href="#%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F">保护模式</a></li>
+<li><a href="#%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E5%8A%9F%E8%83%BD">身份验证功能</a></li>
+<li><a href="#%E6%95%B0%E6%8D%AE%E5%8A%A0%E5%AF%86%E6%94%AF%E6%8C%81">数据加密支持</a></li>
+<li><a href="#%E7%A6%81%E7%94%A8%E7%89%B9%E5%AE%9A%E5%91%BD%E4%BB%A4">禁用特定命令</a></li>
+<li><a href="#%E7%94%B1%E5%A4%96%E9%83%A8%E5%AE%A2%E6%88%B7%E7%B2%BE%E5%BF%83%E9%80%89%E6%8B%A9%E7%9A%84%E8%BE%93%E5%85%A5%E8%A7%A6%E5%8F%91%E7%9A%84%E6%94%BB%E5%87%BB">由外部客户精心选择的输入触发的攻击</a></li>
+<li><a href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%E8%BD%AC%E4%B9%89%E5%92%8Cnosql%E6%B3%A8%E5%85%A5">字符串转义和NoSQL注入</a></li>
+<li><a href="#%E4%BB%A3%E7%A0%81%E5%AE%89%E5%85%A8%E6%80%A7">代码安全性</a></li>
+<li><a href="#gpg%E5%AF%86%E9%92%A5">GPG密钥</a></li>
+</ul>
+</p>
+<h2><span id="redis通用安全模型"> Redis通用安全模型</span></h2>
+<p>Redis旨在由受信任环境中的受信任客户端访问。 这意味着通常不会将Redis实例直接暴露给Internet，或者是不受信任的客户端可以直接访问Redis TCP端口或UNIX套接字的环境。</p>
+<p>例如，在使用Redis作为数据库，缓存或消息传递系统实现的Web应用程序的公共上下文中，应用程序前端（Web端）内的客户端将查询Redis以生成页面或执行请求的操作或由Web应用程序用户触发。</p>
+<p>在这种情况下，Web应用程序连接Redis和不受信任的客户端（访问Web应用程序的用户浏览器）之间的访问。</p>
+<p>这是一个具体示例，但是，通常，对Redis的不受信任访问应始终由实现ACL的层，验证用户输入以及决定对Redis实例执行哪些操作来调解。</p>
+<p>一般而言，Redis未针对最大安全性进行优化，而是为了获得最佳性能和简单性。</p>
+<h2><span id="网络安全"> 网络安全</span></h2>
+<p>除了网络中受信任的客户端之外，每个人都应该拒绝访问Redis端口，因此运行Redis的服务器只能由使用Redis实现应用程序的计算机直接访问。</p>
+<p>在直接暴露于互联网的单台计算机的常见情况下，例如虚拟化的Linux实例（Linode，EC2，…），应该对Redis端口进行防火墙以防止来自外部的访问。 客户端仍然可以使用 <code>localhost</code> 访问Redis。</p>
+<p>请注意，可以通过在redis.conf文件中添加如下行来将Redis绑定到单个接口：</p>
+<p><code>bind 127.0.0.1</code></p>
+<p>由于Redis的性质，未能从外部保护Redis端口会产生很大的安全影响。 例如，外部攻击者可以使用单个<code>FLUSHALL</code>命令删除整个数据集。</p>
+<h2><span id="保护模式"> 保护模式</span></h2>
+<p>遗憾的是，许多用户无法保护Redis实例不被外部网络访问。 许多实例只是在公共IP上暴露在互联网上。 由于这个原因，<strong>从版本3.2.0开始，当使用默认配置（绑定所有接口）并且没有任何密码来执行Redis以访问它时，它进入称为保护模式的特殊模式 。</strong> 在此模式下，Redis仅回复来自环回接口的查询，并回复与其他地址连接的其他客户端的错误，解释正在发生的事情以及如何正确配置Redis。</p>
+<p>我们希望保护模式能够严重降低因未经正确管理而执行的未受保护的Redis实例导致的安全问题，但系统管理员仍然可以忽略Redis提供的错误，只需禁用保护模式或手动绑定所有接口。</p>
+<h2><span id="身份验证功能"> 身份验证功能</span></h2>
+<p>虽然Redis没有尝试实现访问控制，但它提供了一个很小的身份验证层，可选择打开编辑<code>redis.conf</code>文件。</p>
+<p>启用授权层后，Redis将拒绝未经身份验证的客户端的任何查询。 客户端可以通过发送<code>AUTH</code>命令后跟密码来验证自身。</p>
+<p>密码由系统管理员以明文形式在redis.conf文件中设置。 它应该足够长以防止暴力攻击有两个原因：</p>
+<ul>
+<li>Redis在提供查询方面非常快。 每秒许多密码可以由外部客户端测试。</li>
+<li>Redis密码存储在redis.conf文件内部和客户端配置中，因此不需要系统管理员记住，因此可能会很长。</li>
+</ul>
+<p>认证层的目标是可选地提供冗余层。 如果防火墙或任何其他用于保护Redis免受外部攻击者攻击的系统失败，外部客户端仍然无法在不知道验证密码的情况下访问Redis实例。</p>
+<p>与其他所有Redis命令一样，AUTH命令以未加密的方式发送，因此它不能防止有足够访问权限的攻击者执行窃听。</p>
+<h2><span id="数据加密支持"> 数据加密支持</span></h2>
+<p>Redis不支持加密。 为了实现受信任方可以通过Internet或其他不受信任的网络访问Redis实例的设置，应该实施额外的保护层，例如SSL代理。 我们建议使用<a href="https://github.com/Tarsnap/spiped" target="_blank" rel="noopener">spiped</a> 。</p>
+<h2><span id="禁用特定命令"> 禁用特定命令</span></h2>
+<p><strong>可以在Redis中禁用命令或将它们重命名为不可授权的名称，以便普通客户端仅限于指定的命令集。</strong></p>
+<p>例如，虚拟化服务器提供商可以提供托管的Redis实例服务。 在这种情况下，普通用户可能无法调用<code>Redis CONFIG</code>命令来更改实例的配置，但提供和删除实例的系统应该能够这样做。</p>
+<p>在这种情况下，可以命令重命名或完全隐藏命令。 此功能作为可在<code>redis.conf</code>配置文件中使用的语句提供。 例如：</p>
+<p><code>rename-command CONFIG b840fc02d524045429941cc15f59e41cb7be6c52</code></p>
+<p>在上面的示例中， CONFIG命令已重命名为不可引用的名称。 也可以通过将其重命名为空字符串来完全禁用它（或任何其他命令），如下例所示：</p>
+<p><code>rename-command CONFIG &quot;&quot;</code></p>
+<h2><span id="由外部客户精心选择的输入触发的攻击"> 由外部客户精心选择的输入触发的攻击</span></h2>
+<p>即使没有外部访问实例，攻击者也可以从外部触发一类攻击。 这种攻击的一个例子是能够将数据插入Redis，从而触发Redis内部实现的数据结构的病态（最坏情况）算法复杂性。</p>
+<p>例如，攻击者可以通过Web表单提供一组字符串，这些字符串已知为同一个桶散列到哈希表中，以便将O（1）预期时间（平均时间）转换为O（N ）最糟糕的情况是，消耗的CPU比预期的多，最终导致拒绝服务。</p>
+<p>为防止此特定攻击，Redis对散列函数使用每执行伪随机种子。</p>
+<p>Redis使用qsort算法实现SORT命令。 目前，该算法不是随机的，因此可以通过仔细选择正确的输入集来触发二次最坏情况行为。</p>
+<h2><span id="字符串转义和nosql注入"> 字符串转义和NoSQL注入</span></h2>
+<p>Redis协议没有字符串转义的概念，因此在正常情况下使用普通客户端库无法注入。 该协议使用前缀长度字符串，完全是二进制安全的。</p>
+<p>由EVAL和EVALSHA命令执行的Lua脚本遵循相同的规则，因此这些命令也是安全的。</p>
+<p>虽然这将是一个非常奇怪的用例，但应用程序应该避免使用从不受信任的源获取的字符串来组成Lua脚本的主体。</p>
+<h2><span id="代码安全性"> 代码安全性</span></h2>
+<p>在传统的Redis设置中，允许客户端完全访问命令集，但访问实例永远不会导致能够控制运行Redis的系统。</p>
+<p>在内部，Redis使用所有众所周知的实践来编写安全代码，防止缓冲区溢出，格式化错误和其他内存损坏问题。 但是，使用CONFIG命令控制服务器配置的能力使客户端能够更改程序的工作目录和转储文件的名称。 这允许客户端在随机路径上编写RDB Redis文件，这是一个安全问题 ，可能很容易导致破坏系统和/或运行不受信任的代码，因为Redis正在运行相同的用户。</p>
+<p>Redis不需要root权限即可运行。 <strong>建议将其作为无特权的redis用户运行</strong>，仅用于此目的。 Redis作者目前正在研究添加新配置参数以防止<code>CONFIG SET / GET</code>目录和其他类似运行时配置指令的可能性。 这将阻止客户端强制服务器在任意位置写入Redis转储文件。</p>
+<h2><span id="gpg密钥"> GPG密钥</span></h2>
+<blockquote>
+<p>翻译自： <a href="https://redis.io/topics/security" target="_blank" rel="noopener">https://redis.io/topics/security</a></p>
+</blockquote>
+</div><script type="text/javascript" src="/js/share.js?v=0.0.2" async></script><a class="article-share-link" data-url="yunke.science/2018/08/28/redis-security/" data-id="cjld4zgd2003gn8vhmw2go3rf" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABrElEQVR42u3aW46DMAwF0O5/050VEF3bSdqODl8IEDnhw/KD1ys+3svj6cn8yuYDFxd3zE0oa9yatX6++jlwcXFvcp8ixnrhZHu99z9ex8XF/WLuroQJFxf3v3J7yQ0uLu73c5OUJS+EEujxWg0XF3fAzZOSc+dH+ru4uLgt7rt45O/JA1lhdVxc3CvcPKBsSz6ClGhdVuHi4p7m9sar+TKb7+Li4n6I22to5iPVvPkSBTJcXNwD3GrpkkNH5U0vnOHi4h7gzoemyXnvBy9cXNyb3LzFud5G70q5fMLFxb3CTejVZybD2uRHDVxc3DvcPJVJEqM8JOXpDi4u7n1utUWS3O0VRUl6hIuLe4ebtzJ77Y9oQNKr2HBxcT/E3bVk9c3NQIaLi7uV2/sPajJerW4SFxf3G7hJwzRHTNqszRfh4uIOoNXQU22azAMlLi7uTe6uGJJvIxm4bhjr4uLijrnztsj6G+RDlGgzuLi4F7nzZUbT3bxMwsXF/RFuddCSN1hxcXF/hVt9ct7yGKU4uLi4A251dDoPds2PhYuLe4V7YhB74mcOXFzcK9w/dWWaeUk8YGQAAAAASUVORK5CYII=">分享</a><div class="tags"><a href="/tags/redis/">redis</a></div><div class="post-nav"><a class="next" href="/2018/08/27/http2-server-push/">使用NGINX 1.13.9引入HTTP2服务器推送</a></div><div id="container"></div><link rel="stylesheet" href="/css/default.css?v=0.0.2"><script src="/js/gitment.browser.js?v=0.0.2"></script><script>var gitment = new Gitment({
+  owner: 'young-0',
+  repo: 'young-0.github.io',
+  oauth: {
+    client_id: '967eeda5599f16063a0a',
+    client_secret: '0c5aaeec2649210043608d7a09c7d19f0795f3f9',
+  },
+})
+gitment.render('container')
+</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="yunke.science"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Kubernetes/">Kubernetes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/elk/">elk</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/fiction/">fiction</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/kubernetes/">kubernetes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/monitor/">monitor</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/nginx/">nginx</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/python/">python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/其他/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/网络/">网络</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/美文/">美文</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/monitor/" style="font-size: 15px;">monitor</a> <a href="/tags/elk/" style="font-size: 15px;">elk</a> <a href="/tags/fiction/" style="font-size: 15px;">fiction</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/架构/" style="font-size: 15px;">架构</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/openresty/" style="font-size: 15px;">openresty</a> <a href="/tags/LuaRocks/" style="font-size: 15px;">LuaRocks</a> <a href="/tags/traefik/" style="font-size: 15px;">traefik</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/Kubernetes/" style="font-size: 15px;">Kubernetes</a> <a href="/tags/crond/" style="font-size: 15px;">crond</a> <a href="/tags/alpine/" style="font-size: 15px;">alpine</a> <a href="/tags/kubernetes/" style="font-size: 15px;">kubernetes</a> <a href="/tags/美文/" style="font-size: 15px;">美文</a> <a href="/tags/kcptun/" style="font-size: 15px;">kcptun</a> <a href="/tags/zabbix/" style="font-size: 15px;">zabbix</a> <a href="/tags/网络/" style="font-size: 15px;">网络</a> <a href="/tags/redis/" style="font-size: 15px;">redis</a> <a href="/tags/情商/" style="font-size: 15px;">情商</a> <a href="/tags/智商/" style="font-size: 15px;">智商</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/08/28/redis-security/">redis 安全</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/08/27/http2-server-push/">使用NGINX 1.13.9引入HTTP2服务器推送</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/10/kubectl-overview/">kubectl概述</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/06/07/kuberouter-guide/">Kube-router 用户指南</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/18/k8sNetworkPolicy/">kubernetes 网络策略简单配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/17/microsrv-advant/">微服务架构的优势</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/16/architec-distri/">分布式服务架构</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/16/architec-growth/">快速成长期架构</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/16/architec-initial/">初创期架构</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/04/beats56changelog/">filebeat 5.+ 与 6.+ 版本的主要更改</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="advanced-bash-scripting-guide-in-chinese/" title="高级Bash脚本编程指南" target="_blank">高级Bash脚本编程指南</a><ul></ul><a href="http://www.colasoft.com.cn/training/document.php" title="网络分析技术学习资料" target="_blank">网络分析技术学习资料</a><ul></ul><a href="https://k8smeetup.github.io/docs/home/" title="Kubernetes 文档" target="_blank">Kubernetes 文档</a><ul></ul><a href="https://www.bilibili.com/video/av21179285" title="TCPIP协议详解" target="_blank">TCPIP协议详解</a><ul></ul><a href="https://www.bilibili.com/video/av21540971" title="python数据结构与算法系列课程" target="_blank">python数据结构与算法系列课程</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">天青色等烟雨.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.2" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.2" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.css"><script type="text/javascript" color="0,0,0" opacity="0.5" zIndex="-2" count="50" src="//cdn.bootcss.com/canvas-nest.js/1.0.1/canvas-nest.min.js"></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.2"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.2"></script></div></body></html>
