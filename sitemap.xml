@@ -2,6 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>yunke.science/2018/09/27/k8s-1-11-3-etcd/</loc>
+    
+    <lastmod>2018-09-27T05:57:45.166Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>yunke.science/2018/09/27/k8s-1-11-3-install/</loc>
+    
+    <lastmod>2018-09-27T05:54:15.024Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>yunke.science/2018/09/19/cka-faq/</loc>
     
     <lastmod>2018-09-19T07:55:56.695Z</lastmod>
