@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>yunke.science/2018/07/10/kubectl-overview/</loc>
+    
+    <lastmod>2018-11-06T02:08:32.136Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>yunke.science/2018/11/05/pipeline-when/</loc>
     
     <lastmod>2018-11-05T10:33:01.567Z</lastmod>
@@ -61,13 +68,6 @@
     <loc>yunke.science/2018/08/27/http2-server-push/</loc>
     
     <lastmod>2018-08-27T08:25:26.683Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>yunke.science/2018/07/10/kubectl-overview/</loc>
-    
-    <lastmod>2018-07-10T07:15:39.316Z</lastmod>
     
   </url>
   
