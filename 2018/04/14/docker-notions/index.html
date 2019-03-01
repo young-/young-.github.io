@@ -1,41 +1,12 @@
-<!DOCTYPE html><html lang="[&quot;zh-CN&quot;,&quot;en&quot;,&quot;default&quot;]"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>Docker 基本概念 | 天青色等烟雨</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.2"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/7.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+<!DOCTYPE html><html lang="[&quot;zh-CN&quot;,&quot;en&quot;,&quot;default&quot;]"><head><meta name="generator" content="Hexo 3.8.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>Docker 基本概念 | 天青色等烟雨</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.2"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/7.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-ga('create','UA-87247047-1','auto');ga('send','pageview');</script><script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({google_ad_client: "ca-pub-8363937384673482", enable_page_level_ads: true});</script></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Docker 基本概念</h1><a id="logo" href="/.">天青色等烟雨</a><p class="description">文不在多、有换则新、人不在挤、有来就行</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Docker 基本概念</h1><div class="post-meta">Apr 14, 2018<span> | </span><span class="category"><a href="/categories/docker/">docker</a></span></div><div class="post-content"><p>A container image is a lightweight, stand-alone, executable package of a piece of software that includes everything needed to run it: code, runtime, system tools, system libraries, settings.<br>
-Available for both Linux and Windows based apps, containerized software will always run the same, regardless of the environment.<br>
-Containers isolate software from its surroundings, for example differences between development and staging environments and help reduce conflicts between teams running different software on the same infrastructure.</p>
-<p><ul class="markdownIt-TOC">
-<li><a href="#%E4%BB%80%E4%B9%88%E6%98%AF-docker">什么是 Docker</a></li>
-<li><a href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8-docker">为什么要使用 Docker？</a></li>
-<li><a href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5">基本概念</a>
-<ul>
-<li><a href="#%E5%88%86%E5%B1%82%E5%AD%98%E5%82%A8">分层存储</a></li>
-</ul>
-</li>
-<li><a href="#%E9%AB%98%E7%BA%A7%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE">高级网络配置</a></li>
-<li><a href="#%E5%AE%89%E5%85%A8%E7%9B%B8%E5%85%B3">安全相关</a></li>
-<li><a href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8pod">为什么使用pod</a>
-<ul>
-<li><a href="#%E7%AE%A1%E7%90%86%E9%9C%80%E6%B1%82">管理需求</a></li>
-<li><a href="#%E8%B5%84%E6%BA%90%E5%85%B1%E4%BA%AB%E5%92%8C%E9%80%9A%E4%BF%A1">资源共享和通信</a></li>
-</ul>
-</li>
-<li><a href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E5%9C%A8%E4%B8%80%E4%B8%AA%E5%AE%B9%E5%99%A8%E4%B8%AD%E8%BF%90%E8%A1%8C%E5%A4%9A%E4%B8%AA%E7%A8%8B%E5%BA%8F">为什么不在一个容器中运行多个程序？</a></li>
-<li><a href="#pods-%E7%9A%84%E7%BB%88%E6%AD%A2%E8%BF%87%E7%A8%8B">Pods 的终止过程</a>
-<ul>
-<li><a href="#%E5%BC%BA%E5%88%B6%E5%88%A0%E9%99%A4-pods">强制删除 pods</a></li>
-</ul>
-</li>
-<li><a href="#pod-%E5%AE%B9%E5%99%A8%E7%9A%84%E7%89%B9%E6%9D%83%E6%A8%A1%E5%BC%8F">Pod 容器的特权模式</a></li>
-<li><a href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99">参考资料</a></li>
-</ul>
-</p>
-<h2><span id="什么是-docker"> 什么是 Docker</span></h2>
-<p>Docker 使用 Google 公司推出的 Go 语言 进行开发实现，基于 Linux 内核的 cgroup，namespace，以及 AUFS 类的 Union FS 等技术，对进程进行封装隔离，属于 操作系统层面的虚拟化技术。由于隔离的进程独立于宿主和其它的隔离的进程，因此也称其为容器。最初实现是基于 LXC，从 0.7 版本以后开始去除 LXC，转而使用自行开发的 libcontainer，从 1.11 开始，则进一步演进为使用 runC 和 containerd。</p>
+ga('create','UA-87247047-1','auto');ga('send','pageview');</script><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({google_ad_client: "ca-pub-8363937384673482", enable_page_level_ads: true});</script></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Docker 基本概念</h1><a id="logo" href="/.">天青色等烟雨</a><p class="description">文不在多、有换则新、人不在挤、有来就行</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Docker 基本概念</h1><div class="post-meta">Apr 14, 2018<span> | </span><span class="category"><a href="/categories/docker/">docker</a></span></div><div class="post-content"><p>A container image is a lightweight, stand-alone, executable package of a piece of software that includes everything needed to run it: code, runtime, system tools, system libraries, settings.<br>Available for both Linux and Windows based apps, containerized software will always run the same, regardless of the environment.<br>Containers isolate software from its surroundings, for example differences between development and staging environments and help reduce conflicts between teams running different software on the same infrastructure.</p>
+<p>@[TOC]</p>
+<h2><span id="什么是-docker">什么是 Docker</span></h2><p>Docker 使用 Google 公司推出的 Go 语言 进行开发实现，基于 Linux 内核的 cgroup，namespace，以及 AUFS 类的 Union FS 等技术，对进程进行封装隔离，属于 操作系统层面的虚拟化技术。由于隔离的进程独立于宿主和其它的隔离的进程，因此也称其为容器。最初实现是基于 LXC，从 0.7 版本以后开始去除 LXC，转而使用自行开发的 libcontainer，从 1.11 开始，则进一步演进为使用 runC 和 containerd。</p>
 <p>传统虚拟机技术是虚拟出一套硬件后，在其上运行一个完整操作系统，在该系统上再运行所需应用进程；而容器内的应用进程直接运行于宿主的内核，容器内没有自己的内核，而且也没有进行硬件虚拟。因此容器要比传统虚拟机更为轻便。</p>
-<h2><span id="为什么要使用-docker"> 为什么要使用 Docker？</span></h2>
-<ol>
+<h2><span id="为什么要使用-docker">为什么要使用 Docker？</span></h2><ol>
 <li>更高效的资源利用率</li>
 <li>更快速的启动时间</li>
 <li>一致的运行环境</li>
@@ -44,107 +15,79 @@ Containers isolate software from its surroundings, for example differences betwe
 <li>更轻松的迁移</li>
 <li>更轻松的维护和扩展</li>
 </ol>
-<h2><span id="基本概念"> 基本概念</span></h2>
-<ul>
+<h2><span id="基本概念">基本概念</span></h2><ul>
 <li>镜像（Image）</li>
 <li>容器（Container）</li>
 <li>仓库（Repository）</li>
 </ul>
-<h3><span id="分层存储"> 分层存储</span></h3>
-<p>因为镜像包含操作系统完整的 root 文件系统，其体积往往是庞大的，因此在 Docker 设计时，就充分利用 Union FS 的技术，将其设计为分层存储的架构。所以严格来说，镜像并非是像一个 ISO 那样的打包文件，镜像只是一个虚拟的概念，其实际体现并非由一个文件组成，而是由一组文件系统组成，或者说，由多层文件系统联合组成。</p>
+<h3><span id="分层存储">分层存储</span></h3><p>因为镜像包含操作系统完整的 root 文件系统，其体积往往是庞大的，因此在 Docker 设计时，就充分利用 Union FS 的技术，将其设计为分层存储的架构。所以严格来说，镜像并非是像一个 ISO 那样的打包文件，镜像只是一个虚拟的概念，其实际体现并非由一个文件组成，而是由一组文件系统组成，或者说，由多层文件系统联合组成。</p>
 <p>镜像构建时，会一层层构建，前一层是后一层的基础。每一层构建完就不会再发生改变，后一层上的任何改变只发生在自己这一层。比如，删除前一层文件的操作，实际不是真的删除前一层的文件，而是仅在当前层标记为该文件已删除。在最终容器运行的时候，虽然不会看到这个文件，但是实际上该文件会一直跟随镜像。因此，在构建镜像的时候，需要额外小心，每一层尽量只包含该层需要添加的东西，任何额外的东西应该在该层构建结束前清理掉。</p>
 <p>分层存储的特征还使得镜像的复用、定制变的更为容易。甚至可以用之前构建好的镜像作为基础层，然后进一步添加新的层，以定制自己所需的内容，构建新的镜像。</p>
-<h2><span id="高级网络配置"> 高级网络配置</span></h2>
-<p>当 Docker 启动时，会自动在主机上创建一个 docker0 虚拟网桥，实际上是 Linux 的一个 bridge，可以理解为一个软件交换机。它会在挂载到它的网口之间进行转发。</p>
+<h2><span id="高级网络配置">高级网络配置</span></h2><p>当 Docker 启动时，会自动在主机上创建一个 docker0 虚拟网桥，实际上是 Linux 的一个 bridge，可以理解为一个软件交换机。它会在挂载到它的网口之间进行转发。</p>
 <p>同时，Docker 随机分配一个本地未占用的私有网段（在 RFC1918 中定义）中的一个地址给 docker0 接口。比如典型的 172.17.42.1，掩码为 255.255.0.0。此后启动的容器内的网口也会自动分配一个同一网段（172.17.0.0/16）的地址。</p>
 <p>当创建一个 Docker 容器的时候，同时会创建了一对 veth pair 接口（当数据包发送到一个接口时，另外一个接口也可以收到相同的数据包）。这对接口一端在容器内，即 eth0；另一端在本地并被挂载到 docker0 网桥，名称以 veth 开头（例如 vethAQI2QT）。通过这种方式，主机可以跟容器通信，容器之间也可以相互通信。Docker 就创建了在主机和所有容器之间一个虚拟共享网络。</p>
-<h2><span id="安全相关"> 安全相关</span></h2>
-<p>对于DDOS攻击的防护<br>
-关闭不必要的服务和端口；限制同一时间内的打开的syn半连接数目；缩短syn半连接的超时时间；及时安装系统补丁；禁止对主机非开放服务的访问；启用防火墙防DDOS属性。</p>
-<h2><span id="为什么使用pod"> 为什么使用pod</span></h2>
-<h3><span id="管理需求"> 管理需求</span></h3>
-<p>Pod 是这样一个模式的抽象：<strong>互相协作的多个进程共同形成一个完整的服务。通过提供对应用的更高层次的抽象，pod简化了应用部署和管理。</strong><br>
-pod是部署、水平扩展以及复制的基本单元。容器的协同工作（协同调度)，共享生命周期(比如说：终止), 复制协调，资源共享以及依赖管理都自动在 pod 内部进行处理。</p>
-<h3><span id="资源共享和通信"> 资源共享和通信</span></h3>
-<p>Pod 内部实现了数据共享和相互通信。</p>
-<p><strong>在 pod 里的所有应用使用同一个网络空间(相同的 IP 和端口)， 彼此之间可以通过 localhost 相互通信。</strong><br>
-因此在同一个 pod 里的应用必须相互之间协调好端口的使用。每一个 pod 都拥有一个平面网络空间的 IP 地址，使用这个地址可以与网络中其他物理机器和 pods 进行通信。</p>
+<h2><span id="安全相关">安全相关</span></h2><p>对于DDOS攻击的防护<br>关闭不必要的服务和端口；限制同一时间内的打开的syn半连接数目；缩短syn半连接的超时时间；及时安装系统补丁；禁止对主机非开放服务的访问；启用防火墙防DDOS属性。</p>
+<h2><span id="为什么使用pod">为什么使用pod</span></h2><h3><span id="管理需求">管理需求</span></h3><p>Pod 是这样一个模式的抽象：<strong>互相协作的多个进程共同形成一个完整的服务。通过提供对应用的更高层次的抽象，pod简化了应用部署和管理。</strong><br>pod是部署、水平扩展以及复制的基本单元。容器的协同工作（协同调度)，共享生命周期(比如说：终止), 复制协调，资源共享以及依赖管理都自动在 pod 内部进行处理。</p>
+<h3><span id="资源共享和通信">资源共享和通信</span></h3><p>Pod 内部实现了数据共享和相互通信。</p>
+<p><strong>在 pod 里的所有应用使用同一个网络空间(相同的 IP 和端口)， 彼此之间可以通过 localhost 相互通信。</strong><br>因此在同一个 pod 里的应用必须相互之间协调好端口的使用。每一个 pod 都拥有一个平面网络空间的 IP 地址，使用这个地址可以与网络中其他物理机器和 pods 进行通信。</p>
 <p>除了定义运行在pod中的应用容器，<strong>pod还可以指定一系列共享存储卷。有了卷，数据就不会在容器重启后丢失，数据还可以在pod内的容器之间共享。</strong></p>
-<h2><span id="为什么不在一个容器中运行多个程序"> 为什么不在一个容器中运行多个程序？</span></h2>
-<ol>
-<li>
-<p>透明度。让 pod 里的容器可见于框架，框架则可以很容易的给这些容器提供服务，比如说：进程管理，资源监控。 这种机制给用户带来了很大的便利。</p>
+<h2><span id="为什么不在一个容器中运行多个程序">为什么不在一个容器中运行多个程序？</span></h2><ol>
+<li><p>透明度。让 pod 里的容器可见于框架，框架则可以很容易的给这些容器提供服务，比如说：进程管理，资源监控。 这种机制给用户带来了很大的便利。 </p>
 </li>
-<li>
-<p>解耦软件依赖。每一个独立的容器都可以单独管理版本，也可以单独重构和重新部署。 Kubernetes 甚至有一天可以实现为单独容器的在线升级。</p>
+<li><p>解耦软件依赖。每一个独立的容器都可以单独管理版本，也可以单独重构和重新部署。 Kubernetes 甚至有一天可以实现为单独容器的在线升级。  </p>
 </li>
-<li>
-<p>易用性。用户们不需要运行自己的进程管理，也不需要担心信号和退出处理等等。</p>
+<li><p>易用性。用户们不需要运行自己的进程管理，也不需要担心信号和退出处理等等。  </p>
 </li>
-<li>
-<p>效率。由于基础设施承担了更多的职责，容器从而变得更加轻量级。</p>
+<li><p>效率。由于基础设施承担了更多的职责，容器从而变得更加轻量级。</p>
 </li>
 </ol>
 <p>为什么不支持基于亲和性的容器协同调度？</p>
 <p>这个方法可以提供协同寻址，但是不能提供大多数 pods 优势，比如说资源共享， IPC, 生命周期共享以及最简化的管理。</p>
-<h2><span id="pods-的终止过程"> Pods 的终止过程</span></h2>
-<p>由于 pods 是一个运行在集群中的进程，所以很重要的一点是，当它们不再被需要时如何优雅地终止 Pod (而不是粗暴的使用 KILL 命令杀死它们以至于没有做清理工作)。用户需要能够发起一个删除 Pod 的请求，知晓 Pod 何时终止，同时应该也能够确认这个删除事件是否已经完成。</p>
-<p><strong>当用户提出删除一个 pod 的请求时，系统会先发送 TERM 信号给每个容器的主进程，如果在预设的宽限期之后这些进程没有自主终止运行，系统会发送 KILL 信号给这些进程，接着 pod 将被从 API server 中删除。</strong></p>
+<h2><span id="pods-的终止过程">Pods 的终止过程</span></h2><p>由于 pods 是一个运行在集群中的进程，所以很重要的一点是，当它们不再被需要时如何优雅地终止 Pod (而不是粗暴的使用 KILL 命令杀死它们以至于没有做清理工作)。用户需要能够发起一个删除 Pod 的请求，知晓 Pod 何时终止，同时应该也能够确认这个删除事件是否已经完成。  </p>
+<p><strong>当用户提出删除一个 pod 的请求时，系统会先发送 TERM 信号给每个容器的主进程，如果在预设的宽限期之后这些进程没有自主终止运行，系统会发送 KILL 信号给这些进程，接着 pod 将被从 API server 中删除。</strong>  </p>
 <p><em>如果 Kubelet 或者 container manager 在等待结束进程时重新启动，终止操作将在宽限期内反复重试。</em></p>
 <p>示例流程：</p>
 <ul>
-<li>
-<ol>
+<li><ol>
 <li>用户发送一个删除 Pod 的命令， 并使用默认的宽限期（30s)： terminationGracePeriodSeconds: 30。</li>
 </ol>
 </li>
-<li>
-<ol start="2">
+<li><ol start="2">
 <li>API server中的pod状态设为dead，时间设置为宽限期</li>
 </ol>
 </li>
-<li>
-<ol start="3">
+<li><ol start="3">
 <li>使用客户端的命令，显示出的Pod的状态为 ”terminating”。</li>
 </ol>
 </li>
-<li>
-<ol start="4">
-<li>（与第3步同时发生）Kubelet 发现某一个 Pod 由于时间超过第2步的设置而被标志成 terminating 状态时， Kubelet 将启动一个kill进程。<br>
-a. 如果 pod 已经被定义成一个 preStop hook，这会在 pod 内部进行调用。如果宽限期已经过期但 preStop - hook 依然还在运行，将调用第2步并在原来的宽限期上加一个小的时间窗口（2 秒钟）。<br>
-b. 把 Pod 里的进程发送到 TERM 信号。</li>
+<li><ol start="4">
+<li>（与第3步同时发生）Kubelet 发现某一个 Pod 由于时间超过第2步的设置而被标志成 terminating 状态时， Kubelet 将启动一个kill进程。<br>a. 如果 pod 已经被定义成一个 preStop hook，这会在 pod 内部进行调用。如果宽限期已经过期但 preStop - hook 依然还在运行，将调用第2步并在原来的宽限期上加一个小的时间窗口（2 秒钟）。<br>b. 把 Pod 里的进程发送到 TERM 信号。  </li>
 </ol>
 </li>
-<li>
-<ol start="5">
+<li><ol start="5">
 <li>（与第3步同时发生），Pod 被从终端的服务列表里移除，同时也不再被 replication controllers 看做时一组运行中的 - pods. 在负载均衡（比如说 service proxy）会将它们从轮做中移除前， Pods - 这种慢关闭的方式可以继续为流量提供服务。</li>
 </ol>
 </li>
-<li>
-<ol start="6">
+<li><ol start="6">
 <li>当宽期限过期时， 任何还在 Pod 里运行的进程都会被 SIGKILL 杀掉。</li>
 </ol>
 </li>
-<li>
-<ol start="7">
+<li><ol start="7">
 <li>Kubelet 通过在 API server 把宽期限设置成0(立刻删除)的方式完成删除 Pod的过程。 这时 Pod 在 API - 里消失，也不再能被用户看到。</li>
 </ol>
 </li>
 </ul>
-<p>默认所有的宽期限都在30秒内。kubectl delete 命令支持 --grace-period=<seconds> - 选项，这个选项允许用户用他们自己指定的值覆盖默认值。值’0‘代表 强制删除 pod. 在 kubectl 1.5 - 及以上的版本里，执行强制删除时必须同时指定 --force ， --grace-period=0。</seconds></p>
-<h3><span id="强制删除-pods"> 强制删除 pods</span></h3>
-<p>强制删除一个 pod 是从集群状态还有 etcd 里立刻删除这个 pod. 当 Pod 被强制删除时， api 服务器不会等待来自 Pod 所在节点上的 kubelet 的确认信息：pod 已经被终止。在 API 里 pod 会被立刻删除，这样新的 pod 就能被创建并且使用完全一样的名字。在节点上， pods 被设置成立刻终止后，在强行杀掉前还会有一个很小的宽限期。</p>
-<h2><span id="pod-容器的特权模式"> Pod 容器的特权模式</span></h2>
-<p>从 Kubernetes v1.1 开始， pod 的容器都可以启动特权模式，只需要将 container spec 的 SecurityContext 指定为 privileged 标志。这对于那些想使用网络栈操作以及访问系统设备等 Linux 能力的容器来说，是个非常有用的功能。 容器里的进程获得了与容器外进程几乎完全相同的权限。有了特权模式，编写网络和卷插件变得更加容易，因为它们可以作为独立的 Pod 运行，而无需编译到 kubelet 中去。</p>
-<p>如果 master 运行的 Kubernetes 版本是 v1.1 或者更高，但是节点上运行的版本低于 v1.1，api-server 虽然会接受新的特权 pod ，但这些 pod 却无法正常运行起来。 它们将一直处于 pending 状态。 当用户调用 kubectl describe pod FooPodName 查看 pod 一直处于 pending 状态的原因时，在 describe command 的输出事件表里会有类似下面的信息： Error validating pod “FooPodName”.“FooPodNamespace” from api, ignoring: spec.containers[0].securityContext.privileged: forbidden ‘&lt;*&gt;(0xc2089d3248)true’</p>
+<p>默认所有的宽期限都在30秒内。kubectl delete 命令支持 –grace-period=<seconds> - 选项，这个选项允许用户用他们自己指定的值覆盖默认值。值’0‘代表 强制删除 pod. 在 kubectl 1.5 - 及以上的版本里，执行强制删除时必须同时指定 –force ， –grace-period=0。</seconds></p>
+<h3><span id="强制删除-pods">强制删除 pods</span></h3><p>强制删除一个 pod 是从集群状态还有 etcd 里立刻删除这个 pod. 当 Pod 被强制删除时， api 服务器不会等待来自 Pod 所在节点上的 kubelet 的确认信息：pod 已经被终止。在 API 里 pod 会被立刻删除，这样新的 pod 就能被创建并且使用完全一样的名字。在节点上， pods 被设置成立刻终止后，在强行杀掉前还会有一个很小的宽限期。</p>
+<h2><span id="pod-容器的特权模式">Pod 容器的特权模式</span></h2><p>从 Kubernetes v1.1 开始， pod 的容器都可以启动特权模式，只需要将 container spec 的 SecurityContext 指定为 privileged 标志。这对于那些想使用网络栈操作以及访问系统设备等 Linux 能力的容器来说，是个非常有用的功能。 容器里的进程获得了与容器外进程几乎完全相同的权限。有了特权模式，编写网络和卷插件变得更加容易，因为它们可以作为独立的 Pod 运行，而无需编译到 kubelet 中去。</p>
+<p>如果 master 运行的 Kubernetes 版本是 v1.1 或者更高，但是节点上运行的版本低于 v1.1，api-server 虽然会接受新的特权 pod ，但这些 pod 却无法正常运行起来。 它们将一直处于 pending 状态。 当用户调用 kubectl describe pod FooPodName 查看 pod 一直处于 pending 状态的原因时，在 describe command 的输出事件表里会有类似下面的信息： Error validating pod “FooPodName”.”FooPodNamespace” from api, ignoring: spec.containers[0].securityContext.privileged: forbidden ‘&lt;*&gt;(0xc2089d3248)true’</p>
 <p>如果 master 运行的 Kubernetes 版本低于 v1.1，则不能创建特权Pod。在这种情况如果用户尝试去创建一个包含特权容器的 pod ，那么将会返回类似下面的错误信息： The Pod “FooPodName” is invalid. spec.containers[0].securityContext.privileged: forbidden ‘&lt;*&gt;(0xc20b222db0)true’</p>
-<h2><span id="参考资料"> 参考资料</span></h2>
-<ol>
-<li><a href="https://yeasy.gitbooks.io/docker_practice/content/introduction/why.html" target="_blank" rel="noopener">Docker —— 从入门到实践<br>
+<h2><span id="参考资料">参考资料</span></h2><ol>
+<li><a href="https://yeasy.gitbooks.io/docker_practice/content/introduction/why.html" target="_blank" rel="noopener">Docker —— 从入门到实践
 </a></li>
 <li><a href="https://k8smeetup.github.io/docs/concepts/workloads/pods/pod/" target="_blank" rel="noopener">kubernetes pods</a></li>
 </ol>
-</div><script type="text/javascript" src="/js/share.js?v=0.0.2" async></script><a class="article-share-link" data-url="yunke.science/2018/04/14/docker-notions/" data-id="cjojg9svf001840vh8aya58h6" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABw0lEQVR42u3aQYrDMAwF0Nz/0h2Y1cCQ5EvCTgrPqxLa+iULYX3lOOL1+V1nn/+u/9evrxwrFi4u7pj7uVwJN6Gf7ZgbcHFx93OrxSsvRtVHcGPDxcV9GfesJCX/lj8OXFzc7+Je06u3gYuL+35u0vwkrU7S8Gzq1XBxcQfceWA6/7w138XFxR1MJSZlJQ9MC/vi4uJu4ebNTPVI1ItTo1/h4uJu4Vbbm2qDVH1M5Y4NFxd3AbcadkxYSRRyI8HFxd3CnYxXkyanvD0uLu6j3PxlqepgtXf0ubk9XFzcLdxefDlH9L6Pi4u7h5tHnHksMo8/oi4NFxd3Gbd6HElAeePUO0jh4uKu5ubD0TzyKExvghJ506vh4uIu4PaK0bwwTQIXXFzcndz8S9VgtAfKhy64uLh7uJMDSq+cVQ9YuLi4e7i90Uj1Sv7iBS4u7lPcyXi1NzTN2y1cXNynuPnqxZq941G1ccLFxV3BrRavSeiZhyaFIQouLu4ybrXQ5OWvVztPd8fFxX0lNx+y9o5KUX6Di4v7Gm5yEJm84lmY8+Di4m7hJs1Pvv3k3wozH1xc3GXcSWCal7nq65tL8l1cXNx77g8QBC7lh+TT4gAAAABJRU5ErkJggg==">分享</a><div class="tags"><a href="/tags/docker/">docker</a></div><div class="post-nav"><a class="pre" href="/2018/04/15/k8s-hook/">使用k8s容器钩子确保服务安全退出</a><a class="next" href="/2018/04/09/Tini-command/">Tini - 一个小而有效的容器初始化命令</a></div><div id="container"></div><link rel="stylesheet" href="/css/default.css?v=0.0.2"><script src="/js/gitment.browser.js?v=0.0.2"></script><script>var gitment = new Gitment({
+</div><script type="text/javascript" src="/js/share.js?v=0.0.2" async></script><a class="article-share-link" data-url="yunke.science/2018/04/14/docker-notions/" data-id="cjspw0wvz0041vwvhdrm011ui" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABw0lEQVR42u3aQYrDMAwF0Nz/0h2Y1cCQ5EvCTgrPqxLa+iULYX3lOOL1+V1nn/+u/9evrxwrFi4u7pj7uVwJN6Gf7ZgbcHFx93OrxSsvRtVHcGPDxcV9GfesJCX/lj8OXFzc7+Je06u3gYuL+35u0vwkrU7S8Gzq1XBxcQfceWA6/7w138XFxR1MJSZlJQ9MC/vi4uJu4ebNTPVI1ItTo1/h4uJu4Vbbm2qDVH1M5Y4NFxd3AbcadkxYSRRyI8HFxd3CnYxXkyanvD0uLu6j3PxlqepgtXf0ubk9XFzcLdxefDlH9L6Pi4u7h5tHnHksMo8/oi4NFxd3Gbd6HElAeePUO0jh4uKu5ubD0TzyKExvghJ506vh4uIu4PaK0bwwTQIXXFzcndz8S9VgtAfKhy64uLh7uJMDSq+cVQ9YuLi4e7i90Uj1Sv7iBS4u7lPcyXi1NzTN2y1cXNynuPnqxZq941G1ccLFxV3BrRavSeiZhyaFIQouLu4ybrXQ5OWvVztPd8fFxX0lNx+y9o5KUX6Di4v7Gm5yEJm84lmY8+Di4m7hJs1Pvv3k3wozH1xc3GXcSWCal7nq65tL8l1cXNx77g8QBC7lh+TT4gAAAABJRU5ErkJggg==">分享</a><div class="tags"><a href="/tags/docker/">docker</a></div><div class="post-nav"><a class="pre" href="/2018/04/15/k8s-hook/">使用k8s容器钩子确保服务安全退出</a><a class="next" href="/2018/04/09/Tini-command/">Tini - 一个小而有效的容器初始化命令</a></div><div id="container"></div><link rel="stylesheet" href="/css/default.css?v=0.0.2"><script src="/js/gitment.browser.js?v=0.0.2"></script><script>var gitment = new Gitment({
   owner: 'young-0',
   repo: 'young-0.github.io',
   oauth: {
@@ -153,4 +96,4 @@ b. 把 Pod 里的进程发送到 TERM 信号。</li>
   },
 })
 gitment.render('container')
-</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="yunke.science"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Kubernetes/">Kubernetes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/elk/">elk</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/fiction/">fiction</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/jenkins/">jenkins</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/monitor/">monitor</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/nginx/">nginx</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/python/">python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/其他/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/网络/">网络</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/美文/">美文</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/monitor/" style="font-size: 15px;">monitor</a> <a href="/tags/elk/" style="font-size: 15px;">elk</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/traefik/" style="font-size: 15px;">traefik</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/openresty/" style="font-size: 15px;">openresty</a> <a href="/tags/LuaRocks/" style="font-size: 15px;">LuaRocks</a> <a href="/tags/fiction/" style="font-size: 15px;">fiction</a> <a href="/tags/架构/" style="font-size: 15px;">架构</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/Kubernetes/" style="font-size: 15px;">Kubernetes</a> <a href="/tags/crond/" style="font-size: 15px;">crond</a> <a href="/tags/alpine/" style="font-size: 15px;">alpine</a> <a href="/tags/网络/" style="font-size: 15px;">网络</a> <a href="/tags/kubernetes/" style="font-size: 15px;">kubernetes</a> <a href="/tags/kcptun/" style="font-size: 15px;">kcptun</a> <a href="/tags/zabbix/" style="font-size: 15px;">zabbix</a> <a href="/tags/美文/" style="font-size: 15px;">美文</a> <a href="/tags/情商/" style="font-size: 15px;">情商</a> <a href="/tags/智商/" style="font-size: 15px;">智商</a> <a href="/tags/jenkins/" style="font-size: 15px;">jenkins</a> <a href="/tags/redis/" style="font-size: 15px;">redis</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/11/16/k8s-pod-priority/">pod 优先级和抢占机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/11/05/pipeline-when/">jenkins pipeline when 内置判断条件</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/10/24/k8s-job-monitor/">Kubernetes job monitor</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/10/22/expose-pod-info/">k8s通过文件将Pod信息暴露给容器的方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/09/29/weave-net/">weave-net</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/09/27/k8s-1-11-3-etcd/">Kubernetes 1.11.3 使用kubeadm创建高可用的ETCD群集</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/09/27/k8s-1-11-install/">Kubernetes 1.11.3 安装</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/09/19/cka-faq/">CKA常见问题解答</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/08/28/redis-security/">redis 安全</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/08/27/http2-server-push/">使用NGINX 1.13.9引入HTTP2服务器推送</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="http://www.21andy.com/manual/advanced-bash-scripting-guide/" title="高级Bash脚本编程指南" target="_blank">高级Bash脚本编程指南</a><ul></ul><a href="http://www.colasoft.com.cn/training/document.php" title="网络分析技术学习资料" target="_blank">网络分析技术学习资料</a><ul></ul><a href="https://k8smeetup.github.io/docs/home/" title="Kubernetes文档" target="_blank">Kubernetes文档</a><ul></ul><a href="https://www.bilibili.com/video/av21179285" title="TCPIP协议详解" target="_blank">TCPIP协议详解</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">天青色等烟雨.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.2" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.2" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.css"><script type="text/javascript" color="0,0,0" opacity="0.5" zIndex="-2" count="50" src="//cdn.bootcss.com/canvas-nest.js/1.0.1/canvas-nest.min.js"></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.2"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.2"></script></div></body></html>
+</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"><input type="hidden" name="sitesearch" value="yunke.science"></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Kubernetes/">Kubernetes</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/elk/">elk</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/fiction/">fiction</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/jenkins/">jenkins</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/monitor/">monitor</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/nginx/">nginx</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/python/">python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/其他/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/网络/">网络</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/美文/">美文</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/monitor/" style="font-size: 15px;">monitor</a> <a href="/tags/elk/" style="font-size: 15px;">elk</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/openresty/" style="font-size: 15px;">openresty</a> <a href="/tags/LuaRocks/" style="font-size: 15px;">LuaRocks</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/fiction/" style="font-size: 15px;">fiction</a> <a href="/tags/架构/" style="font-size: 15px;">架构</a> <a href="/tags/crond/" style="font-size: 15px;">crond</a> <a href="/tags/alpine/" style="font-size: 15px;">alpine</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/Kubernetes/" style="font-size: 15px;">Kubernetes</a> <a href="/tags/jenkins/" style="font-size: 15px;">jenkins</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/kubernetes/" style="font-size: 15px;">kubernetes</a> <a href="/tags/kcptun/" style="font-size: 15px;">kcptun</a> <a href="/tags/zabbix/" style="font-size: 15px;">zabbix</a> <a href="/tags/redis/" style="font-size: 15px;">redis</a> <a href="/tags/情商/" style="font-size: 15px;">情商</a> <a href="/tags/智商/" style="font-size: 15px;">智商</a> <a href="/tags/traefik/" style="font-size: 15px;">traefik</a> <a href="/tags/网络/" style="font-size: 15px;">网络</a> <a href="/tags/美文/" style="font-size: 15px;">美文</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2019/03/01/jenkins-role-auth/">Jenkins利用`Role-based Authorization Strategy`插件管理项目权限</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/11/16/k8s-pod-priority/">pod 优先级和抢占机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/11/05/pipeline-when/">jenkins pipeline when 内置判断条件</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/10/24/k8s-job-monitor/">Kubernetes job monitor</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/10/22/expose-pod-info/">k8s通过文件将Pod信息暴露给容器的方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/09/29/weave-net/">weave-net</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/09/27/k8s-1-11-3-etcd/">Kubernetes 1.11.3 使用kubeadm创建高可用的ETCD群集</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/09/27/k8s-1-11-install/">Kubernetes 1.11.3 安装</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/09/19/cka-faq/">CKA常见问题解答</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/08/28/redis-security/">redis 安全</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="http://www.21andy.com/manual/advanced-bash-scripting-guide/" title="高级Bash脚本编程指南" target="_blank">高级Bash脚本编程指南</a><ul></ul><a href="http://www.colasoft.com.cn/training/document.php" title="网络分析技术学习资料" target="_blank">网络分析技术学习资料</a><ul></ul><a href="https://k8smeetup.github.io/docs/home/" title="Kubernetes文档" target="_blank">Kubernetes文档</a><ul></ul><a href="https://www.bilibili.com/video/av21179285" title="TCPIP协议详解" target="_blank">TCPIP协议详解</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2019 <a href="/." rel="nofollow">天青色等烟雨.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.2" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.2" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.css"><script type="text/javascript" color="0,0,0" opacity="0.5" zindex="-2" count="50" src="//cdn.bootcss.com/canvas-nest.js/1.0.1/canvas-nest.min.js"></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.2"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.2"></script></div></body></html>

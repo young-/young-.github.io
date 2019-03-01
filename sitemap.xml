@@ -2,9 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>yunke.science/2019/03/01/jenkins-role-auth/</loc>
+    
+    <lastmod>2019-03-01T10:00:38.697Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>yunke.science/2018/11/16/k8s-pod-priority/</loc>
     
-    <lastmod>2018-11-16T03:14:25.951Z</lastmod>
+    <lastmod>2018-11-16T03:22:12.104Z</lastmod>
     
   </url>
   
