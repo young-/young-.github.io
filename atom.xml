@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="yunke.science/"/>
-  <updated>2019-03-01T10:17:20.680Z</updated>
+  <updated>2019-03-01T10:42:28.321Z</updated>
   <id>yunke.science/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>V2Ray 配置</title>
+    <link href="yunke.science/2019/03/01/v2ray-proxy/"/>
+    <id>yunke.science/2019/03/01/v2ray-proxy/</id>
+    <published>2019-03-01T10:40:24.000Z</published>
+    <updated>2019-03-01T10:42:28.321Z</updated>
+    
+    <content type="html"><![CDATA[<p>V2Ray 是一个与 Shadowsocks 类似的代理软件，可以用来科学上网（翻墙）学习国外先进科学技术</p><a id="more"></a><p>@[TOC]</p><h2><span id="什么是-v2ray">什么是 V2Ray？</span></h2><p>V2Ray 是 Project V 下的一个工具。Project V 是一个包含一系列构建特定网络环境工具的项目，而 V2Ray 属于最核心的一个。 官方中介绍Project V 提供了单一的内核和多种界面操作方式。内核（V2Ray）用于实际的网络交互、路由等针对网络数据的处理，而外围的用户界面程序提供了方便直接的操作流程。不过从时间上来说，先有 V2Ray 才有 Project V。 如果还是不理解，那么简单地说，<strong>V2Ray 是一个与 Shadowsocks 类似的代理软件，可以用来科学上网（翻墙）学习国外先进科学技术</strong>。</p><h2><span id="v2ray-跟-shadowsocks-有什么区别">V2Ray 跟 Shadowsocks 有什么区别？</span></h2><p>Shadowsocks 功能单一，V2Ray 功能强大。听起来似乎有点贬低 Shadowsocks 呢？当然不！换一个角度来看，Shadowsocks 简单好上手，V2Ray 复杂配置多。</p><h2><span id="既然-v2ray-复杂为什么要用它">既然 V2Ray 复杂，为什么要用它？</span></h2><p>相对来说，V2Ray 有以下优势：</p><ul><li>更完善的协议: V2Ray 使用了新的自行研发的 VMess 协议，改正了 Shadowsocks 一些已有的缺点，更难被墙检测到</li><li>更强大的性能: 网络性能更好，具体数据可以看 V2Ray 官方博客</li><li>更丰富的功能: 以下是部分 V2Ray 的功能</li><li><strong>mKCP</strong>: KCP 协议在 V2Ray 上的实现，不必另行安装 kcptun</li><li><strong>动态端口</strong>：动态改变通信的端口，对抗对长时间大流量端口的限速封锁</li><li>路由功能：可以随意设定指定数据包的流向，去广告、反跟踪都可以</li><li>传出代理：看名字可能不太好理解，其实差不多可以称之为多重代理。类似于 Tor 的代理</li><li>数据包伪装：类似于 Shadowsocks-rss 的混淆，另外对于 mKCP 的数据包也可伪装，伪装常见流量，令识别更困难</li><li>WebSocket 协议：可以 PaaS 平台搭建V2Ray，通过 WebSocket 代理。也可以通过它使用 CDN 中转，抗封锁效果更好</li><li>Mux:多路复用，进一步提高科学上网的并发性能</li></ul><h2><span id="安装">安装</span></h2><p>V2Ray 分服务端、客户端</p><p>服务端部署在linux<br>客户端部署在window <a href="https://github.com/2dust/v2rayN" target="_blank" rel="noopener">https://github.com/2dust/v2rayN</a></p><h3><span id="linux-安装">linux 安装：</span></h3><p><code>bash &lt;(curl -L -s https://install.direct/go.sh)</code></p><p>运行脚本位于系统的以下位置：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/etc/systemd/system/v2ray.service: Systemd</span><br><span class="line">/etc/init.d/v2ray: SysV</span><br><span class="line"></span><br><span class="line">编辑 /etc/v2ray/config.json 文件来配置你需要的代理方式；</span><br><span class="line">运行 service v2ray start [CentOS6启动]来启动 V2Ray 进程；</span><br><span class="line">systemctl start v2ray [CentOS7启动]</span><br></pre></td></tr></table></figure><h3><span id="服务端配置">服务端配置</span></h3><p>使用配置生成器，直接生成配置，复制即可</p><p>配置生成器: <a href="https://intmainreturn0.com/v2ray-config-gen/" target="_blank" rel="noopener">https://intmainreturn0.com/v2ray-config-gen/</a></p><img src="/2019/03/01/v2ray-proxy/01.png" title="create_config"><h3><span id="windows客户端安装">windows客户端安装</span></h3><p>window系统，下载 v2rayN-Core.zip</p><p><a href="https://github.com/2dust/v2rayN/releases" target="_blank" rel="noopener">https://github.com/2dust/v2rayN/releases</a></p><p>解压，直接运行v2rayN.exe</p><p>添加VMess服务器,添加配置，确定<br><img src="/2019/03/01/v2ray-proxy/02.png" title="add_vmess_config"></p><p>启用http代理</p><p>在右下角托盘图标，点击右键，选择【启用http代理模式】，在【http代理模式】里面选择【开启PAC，并自动配置PAC（PAC模式）】。</p><img src="/2019/03/01/v2ray-proxy/03.png" title="http_proxy"><p>上网测试。</p><p><a href="https://www.google.com.hk/" target="_blank" rel="noopener">https://www.google.com.hk/</a></p><h3><span id="安卓客户端">安卓客户端</span></h3><p>v2rayNG</p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;V2Ray 是一个与 Shadowsocks 类似的代理软件，可以用来科学上网（翻墙）学习国外先进科学技术&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="其他" scheme="yunke.science/categories/%E5%85%B6%E4%BB%96/"/>
+    
+    
+      <category term="proxy" scheme="yunke.science/tags/proxy/"/>
+    
+  </entry>
   
   <entry>
     <title>不需要安装软件，优雅使用google搜索</title>
@@ -436,28 +458,6 @@
     
     
       <category term="架构" scheme="yunke.science/tags/%E6%9E%B6%E6%9E%84/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>filebeat 5.+ 与 6.+ 版本的主要更改</title>
-    <link href="yunke.science/2018/05/04/beats56changelog/"/>
-    <id>yunke.science/2018/05/04/beats56changelog/</id>
-    <published>2018-05-04T07:56:52.000Z</published>
-    <updated>2018-05-04T07:59:12.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>本节讨论如果将Beats从版本5.x升级到6.x时应注意的主要更改.</p><a id="more"></a><p>@[TOC]</p><p><a href="https://www.elastic.co/guide/en/beats/libbeat/master/breaking-changes-6.0.html" target="_blank" rel="noopener">Beats Platform Reference [master] » Breaking changes » Breaking changes in 6.0</a></p><h2><span id="spooler-组件删除">Spooler 组件删除</span></h2><p><a href="https://www.elastic.co/guide/en/beats/libbeat/master/breaking-changes-6.0.html#breaking-changes-spooler-removed" target="_blank" rel="noopener">filebeat spooler removed</a></p><p>6.0版本为所有Beats的内部管道提供了一种新的体系结构。这种架构重构主要是内部的，但更明显的效果之一是Filebeat的Spooler组件被删除</p><ul><li><code>filebeat.spool_size</code></li><li><code>filebeat.publish_as</code></li><li><code>filebeat.idle_timeo</code></li><li><code>queue_size</code></li><li><code>bulk_queue_size</code></li></ul><p>前三个特定于<code>Filebeat</code>，而<code>queue_size</code>和<code>bulk_queue_size</code>存在于所有<code>Beats</code>中。如果设置了这些选项中的任何一个，<code>Filebeat 6.0+</code>将拒绝启动。</p><p>引入queue.mem设置，而不是上面的设置。如果您之前必须调整spool_size或queue_size，则可能需要在升级时调整queue.mem.events。但是，最好将queue.mem的其余部分保留为默认值，因为它们适用于所有负载。</p><p>publish_async选项（从5.3开始不推荐使用）被删除，因为新管道默认已经异步工作。</p><h2><span id="只能启用一个输出">只能启用一个输出</span></h2><p>6.0之前，您可以同时启用多个输出，但仅限于不同的类型。例如，您可以启用Elasticsearch和Logstash输出，但不能启用两个Logstash输出。</p><p>6.0+删除了同时启用多个输出的选项。这有助于简化管道并明确Beats中输出的范围。</p><p>如果您需要多个输出，您有以下选择：</p><ul><li>使用Logstash输出，然后使用Logstash将事件传送到多个输出</li><li>同一节点运行多个实例</li><li>如果您使用 <code>file or console</code> 输出进行调试，除了主输出之外，我们还建议使用<code>-d &quot;publish&quot;</code>选项，将发布的事件记录在Filebeat日志中。</li></ul><h2><span id="logstash索引设置现在需要版本">Logstash索引设置现在需要版本</span></h2><p>如果使用 <code>Logstash output</code> 将数据从<code>Beats</code>发送到<code>Logstash</code>，则需要更新<code>Logstash</code>配置中的索引设置以包含<code>Beat</code>版本：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">output &#123;</span><br><span class="line">  elasticsearch &#123;</span><br><span class="line">    hosts =&gt; &quot;localhost:9200&quot;</span><br><span class="line">    manage_template =&gt; false</span><br><span class="line">    index =&gt; &quot;%&#123;[@metadata][beat]&#125;-%&#123;[@metadata][version]&#125;-%&#123;+YYYY.MM.dd&#125;&quot;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>在6.0之前，推荐的设置是：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">index =&gt; &quot;%&#123;[@metadata][beat]&#125;-%&#123;+YYYY.MM.dd&#125;&quot;</span><br></pre></td></tr></table></figure><p>6.0的索引模板应用于与模式 <code>[beat]-[version]-*</code> 匹配的新索引。 您必须更新您的<code>Logstash</code>配置，否则模板将不会被应用。</p><h2><span id="filebeat-prospector-类型-和-document-类型-的改变">Filebeat prospector 类型 和 document 类型 的改变</span></h2><p><a href="https://www.elastic.co/guide/en/beats/libbeat/master/breaking-changes-6.0.html#breaking-changes-types" target="_blank" rel="noopener">Filebeat prospector type and document type changes</a></p><p>来自 <code>prospector</code> 配置的 <code>document_type</code> 设置已被删除，因为<code>_type</code>概念正在从<code>Elasticsearch</code>中移除。 您可以使用自定义字段，而不是<code>document_type</code>设置。</p><p>这也导致了将<code>input_type</code> 重命名为<code>type</code>。 这种改变是向后兼容的，因为旧的设置仍然有效。 但是，<code>input_type</code>输出字段已重命名为<code>prospector.type</code> 。</p><h2><span id="在配置文件中禁用filebeat默认探勘器">在配置文件中禁用Filebeat默认探勘器</span></h2><p>Filebeat的默认启动行为（基于包含的示例配置）是读取所有匹配 <code>/var/log/*.log</code> 模式的文件。 </p><p>从版本6.0开始，Filebeat不会以默认配置读取任何文件。 但是，您可以轻松启用系统模块，例如使用CLI标志：</p><p><code>filebeat --modules = system</code></p><h2><span id="其他更新的设置">其他更新的设置</span></h2><p><code>outputs.elasticsearch.template.*</code> 移动到 <code>setup.template.*</code> 下面，其他保持不变。</p><p><code>dashboards.*</code> 移动到 <code>setup.dashboards.*</code> 下面，其他保持不变。</p><p>Filebeat 移除选项 <code>force_close_files</code> 和 <code>close_older</code> 。</p><h2><span id="导入kibana仪表板的更改">导入Kibana仪表板的更改</span></h2><p>用于在先前版本的Beats中加载Kibana仪表板的import_dashboards程序已由setup命令替换。 例如，以下命令：<br><code>./scripts/import_dashboards -user elastic -pass YOUR_PASSWORD</code><br>由以下命令代替：<br><code>./filebeat setup -E &quot;output.elasticsearch.username=elastic&quot; -E &quot;output.elasticsearch.password=YOUR_PASSWORD&quot;</code>  </p><p>请注意，只有在配置文件中尚未配置Elasticsearch输出的情况下才需要 <code>-E</code> 标志。</p><p>除了命令的更改之外，请注意，加载Kibana仪表板在6.0版本的堆栈中工作方式不同。 在6.0之前，仪表板被直接插入到.kibana Elasticsearch索引中。 从6.0开始，Beats使用Kibana服务器API。 这意味着加载仪表板的Beat需要直接访问Kibana，并且需要设置Kibana URL。 设置Kibana URL的选项是<code>setup.kibana.host</code>，您可以在配置文件中或通过<code>-E CLI</code>标志设置该选项：</p><p><code>./filebeat setup -E &quot;setup.kibana.host=http://kibana-host:5601&quot;</code>  </p><p>Kibana主机的默认值是 <code>localhost:5601</code>。</p><h2><span id="metricbeat过滤器重命名为处理器">Metricbeat过滤器重命名为处理器</span></h2><p>在本模块级配置的“本地”处理器过去在Metricbeat中称为过滤器，但它们提供与全局处理器相似的功能。 两者之间的显着区别在于筛选器相对于度量标准集（例如，<code>mount_point</code>）访问字段，而处理器则以其全限定名称（例如<code>system.filesystem.mount_point</code>）引用字段。</p><p>从版本6.0开始，筛选器将重命名为处理器，并且只能使用完全限定名称访问这些字段。</p><h2><span id="二进制文件是针对libc动态编译的">二进制文件是针对libc动态编译的</span></h2><p>在6.0之前，使用Cgo编译<code>Metricbeat</code> 和 <code>Packetbeat</code>，而使用纯<code>Go</code>编译器编译<code>Filebeat</code>，<code>Winlogbeat</code>和<code>Heartbeat</code>。 编译Cgo的一个优势是libc是动态编译的。 </p><p>从6.0开始，所有Beats都使用Cgo进行编译，因此可以针对libc进行动态编译。 这可以降低二进制文件的可移植性，但是所有受支持的平台都不受影响。</p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;本节讨论如果将Beats从版本5.x升级到6.x时应注意的主要更改.&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="elk" scheme="yunke.science/categories/elk/"/>
-    
-    
-      <category term="elk" scheme="yunke.science/tags/elk/"/>
     
   </entry>
   
